@@ -246,8 +246,8 @@ textarea { resize: none; min-height: 68px; line-height: 1.5; font-size: 13px; }
 .process-btn.selected { background: var(--accent-soft); border-color: var(--accent); color: var(--accent); font-weight: 600; }
 
 /* ── 무인가동 패널 ── */
-.slide-panel { overflow: hidden; max-height: 0; transition: max-height 0.3s ease; }
-.slide-panel.open { max-height: 200px; }
+.slide-panel { overflow: hidden; max-height: 0; transition: max-height 0.4s ease; }
+.slide-panel.open { max-height: 600px; }
 
 /* ── 현황 카드 (C안 스타일) ── */
 .today-hero {
@@ -473,45 +473,6 @@ textarea { resize: none; min-height: 68px; line-height: 1.5; font-size: 13px; }
 .btn-excel:hover { background: #1a5c38; }
 
 /* ── 복사 추출 영역 ── */
-.copy-result-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 8px;
-  font-size: 12px;
-  color: var(--text2);
-  font-weight: 600;
-}
-.copy-area {
-  width: 100%;
-  height: 180px;
-  font-family: 'JetBrains Mono', monospace;
-  font-size: 11px;
-  background: var(--bg3);
-  border: 1px solid var(--border);
-  border-radius: var(--radius-sm);
-  padding: 10px;
-  color: var(--text);
-  resize: vertical;
-  line-height: 1.6;
-}
-.copy-area:focus { outline: none; border-color: var(--accent); }
-.btn-copy {
-  background: var(--accent);
-  color: white;
-  border: none;
-  border-radius: 6px;
-  font-size: 12px;
-  font-weight: 600;
-  padding: 5px 14px;
-  cursor: pointer;
-  font-family: 'Noto Sans KR', sans-serif;
-  transition: background 0.15s;
-  white-space: nowrap;
-}
-.btn-copy:hover { background: var(--accent2); }
-.btn-copy.copied { background: var(--success); }
-
 /* ── 배지 ── */
 .badge { display: inline-block; font-size: 10px; font-weight: 600; padding: 2px 8px; border-radius: 20px; letter-spacing: 0.3px; }
 .badge-blue { background: var(--accent-soft); color: var(--accent); border: 1px solid rgba(37,99,235,0.2); }
@@ -624,7 +585,27 @@ textarea { resize: none; min-height: 68px; line-height: 1.5; font-size: 13px; }
   padding: 4px 0 2px;
   border-top: 1px dashed var(--border);
 }
-/* ── 거래처/모델 드롭다운 ── */
+/* ── 비가동 사유 ── */
+.idle-reason-btn {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background: var(--bg3);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 8px 10px;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text2);
+  cursor: pointer;
+  transition: all 0.15s;
+}
+.idle-reason-btn:has(input:checked) {
+  background: var(--accent-soft);
+  border-color: var(--accent);
+  color: var(--accent);
+}
+.idle-reason-btn input[type="radio"] { accent-color: var(--accent); }
 .autocomplete-wrap { display: flex; flex-direction: column; }
 .autocomplete-wrap select { width: 100%; }
 .defect-etc-row {
@@ -731,6 +712,32 @@ textarea { resize: none; min-height: 68px; line-height: 1.5; font-size: 13px; }
 .equip-summary-nums { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 4px; }
 
 /* ── 삭제 버튼 ── */
+.btn-edit {
+  background: none;
+  border: 1px solid var(--accent);
+  color: var(--accent);
+  border-radius: 6px;
+  font-size: 11px;
+  font-weight: 600;
+  padding: 3px 10px;
+  cursor: pointer;
+  font-family: 'Noto Sans KR', sans-serif;
+  transition: all 0.15s;
+}
+.btn-edit:hover { background: var(--accent-soft); }
+.edit-mode-banner {
+  background: var(--warning-bg);
+  border: 1px solid var(--warning);
+  border-radius: var(--radius-sm);
+  padding: 10px 14px;
+  font-size: 12px;
+  color: var(--warning);
+  font-weight: 600;
+  margin-bottom: 10px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
 .btn-delete {
   background: none;
   border: 1px solid var(--danger);
@@ -799,34 +806,19 @@ textarea { resize: none; min-height: 68px; line-height: 1.5; font-size: 13px; }
       <button class="btn-secondary" style="margin-bottom:12px;" onclick="showInputForm()">+ 새 LOT 추가 입력</button>
     </div>
 
+    <!-- 수정모드 배너 (수정 시 표시) -->
+    <div id="edit-mode-banner" class="edit-mode-banner" style="display:none;">
+      <span>✏️ 수정 모드 — 모든 항목 수정 가능</span>
+      <button onclick="cancelEdit()" style="background:none;border:none;color:var(--warning);font-weight:700;cursor:pointer;font-size:13px;">✕ 취소</button>
+    </div>
+
     <!-- 입력 폼 -->
     <div id="input-form">
-
-      <!-- 입력 유형 선택 -->
-      <div class="card">
-        <div class="card-title">입력 유형</div>
-        <div class="type-select-row" style="grid-template-columns:1fr 1fr 1fr;">
-          <button class="type-btn active" id="type-btn-prod" onclick="switchInputType('prod')">
-            <span class="type-icon">⚙️</span>
-            <span class="type-label">양산만</span>
-            <span class="type-desc">셋팅 완료 후 양산</span>
-          </button>
-          <button class="type-btn" id="type-btn-setup_prod" onclick="switchInputType('setup_prod')">
-            <span class="type-icon">🔧⚙️</span>
-            <span class="type-label">셋팅+양산</span>
-            <span class="type-desc">당일 셋팅 후 양산</span>
-          </button>
-          <button class="type-btn" id="type-btn-setup" onclick="switchInputType('setup')">
-            <span class="type-icon">🔧</span>
-            <span class="type-label">셋팅만</span>
-            <span class="type-desc">양산 없이 셋팅만</span>
-          </button>
-        </div>
-      </div>
 
       <!-- 기본 정보 -->
       <div class="card">
         <div class="card-title">기본 정보</div>
+
         <div class="form-row">
           <div class="form-group">
             <label class="form-label">작업 날짜 <span class="required">*</span></label>
@@ -857,7 +849,7 @@ textarea { resize: none; min-height: 68px; line-height: 1.5; font-size: 13px; }
         <div class="form-row">
           <div class="form-group">
             <label class="form-label">작업자 <span class="required">*</span></label>
-            <select id="p-worker"><option value="">설비 먼저 선택</option></select>
+            <select id="p-worker" onchange="onWorkerChange()"><option value="">설비 먼저 선택</option></select>
           </div>
           <div class="form-group">
             <label class="form-label">거래처 <span class="required">*</span></label>
@@ -885,12 +877,18 @@ textarea { resize: none; min-height: 68px; line-height: 1.5; font-size: 13px; }
           <div class="form-group">
             <label class="form-label">LOT 번호 <span class="required">*</span></label>
             <input type="text" id="p-lot" placeholder="LOT 번호"
-              oninput="this.value=this.value.toUpperCase()">
+              oninput="this.value=this.value.toUpperCase(); onLotInput();">
           </div>
         </div>
         <!-- 숨김 필드 (실제 저장값) -->
         <input type="hidden" id="p-customer">
         <input type="hidden" id="p-model">
+
+        <!-- 작업지시 자동연동 안내 박스 -->
+        <div id="wo-match-box" style="display:none;background:var(--accent-soft);border:1px solid var(--accent);border-radius:var(--radius-sm);padding:10px 14px;margin-top:4px;margin-bottom:2px;">
+          <div style="font-size:11px;font-weight:700;color:var(--accent);margin-bottom:4px;">📋 작업지시 자동 연동</div>
+          <div id="wo-match-info" style="font-size:12px;color:var(--text2);line-height:1.8;"></div>
+        </div>
         <div class="form-row">
           <div class="form-group">
             <label class="form-label">원자재 LOT</label>
@@ -902,124 +900,149 @@ textarea { resize: none; min-height: 68px; line-height: 1.5; font-size: 13px; }
             <input type="text" id="p-process" readonly style="opacity:0.65;cursor:not-allowed;background:var(--bg3);" placeholder="설비 선택 시 자동입력">
           </div>
         </div>
-      </div>
-
-      <!-- 생산 실적 (양산만 / 셋팅+양산 유형일 때 표시) -->
-      <div class="card" id="prod-section">
-        <div class="card-title">생산 실적</div>
-        <div class="form-row">
+        <div class="form-row full">
           <div class="form-group">
-            <label class="form-label">유인 생산수량 <span class="required">*</span></label>
-            <input type="number" id="p-att-qty2" placeholder="0" min="0" oninput="calcDefect('att'); calcCT();">
+            <label class="form-label">비고</label>
+            <input type="text" id="p-note" placeholder="특이사항 등 자유 입력">
           </div>
-        </div>
-
-        <!-- 유인 불량 세부 -->
-        <div class="section-label-sm">유인 불량 <span style="font-weight:400;color:var(--text3);">(선택)</span></div>
-        <div class="form-row three">
-          <div class="form-group">
-            <label class="form-label">치수</label>
-            <input type="number" id="p-att-d1" placeholder="0" min="0" oninput="calcDefect('att')">
-          </div>
-          <div class="form-group">
-            <label class="form-label">찍힘</label>
-            <input type="number" id="p-att-d2" placeholder="0" min="0" oninput="calcDefect('att')">
-          </div>
-          <div class="form-group">
-            <label class="form-label">성형</label>
-            <input type="number" id="p-att-d3" placeholder="0" min="0" oninput="calcDefect('att')">
-          </div>
-        </div>
-        <div class="form-row three">
-          <div class="form-group">
-            <label class="form-label">스크레치</label>
-            <input type="number" id="p-att-d4" placeholder="0" min="0" oninput="calcDefect('att')">
-          </div>
-          <div class="form-group">
-            <label class="form-label">조도</label>
-            <input type="number" id="p-att-d5" placeholder="0" min="0" oninput="calcDefect('att')">
-          </div>
-          <div class="form-group">
-            <label class="form-label">불량 합계</label>
-            <input type="number" id="p-att-defect-total" placeholder="0" readonly style="opacity:0.55;cursor:not-allowed;">
-          </div>
-        </div>
-
-        <!-- 기타 불량: 원인 직접입력 + 수량 -->
-        <div class="defect-etc-row">
-          <div class="form-group" style="flex:2;">
-            <label class="form-label">기타: <span style="font-weight:400;color:var(--text3);">(원인 직접입력)</span></label>
-            <input type="text" id="p-att-d6-note" placeholder="예) 공구 마모, 재료 이상...">
-          </div>
-          <div class="form-group" style="flex:1;">
-            <label class="form-label">수량</label>
-            <input type="number" id="p-att-d6" placeholder="0" min="0" oninput="calcDefect('att')">
-          </div>
-        </div>
-
-        <!-- 양품수 자동계산 -->
-        <div class="calc-box" style="margin-top:6px;">
-          <span class="calc-label">유인 양품수 (유인수량 − 유인불량합계)</span>
-          <span class="calc-value" id="p-good-display">— ea</span>
-          <input type="hidden" id="p-good-qty">
         </div>
       </div>
 
-      <!-- 셋업 불량 (셋팅만 / 셋팅+양산 유형일 때 표시) -->
-      <div class="card" id="setup-section" style="display:none;">
-        <div class="card-title">셋업 불량 <span style="font-size:11px;font-weight:400;color:var(--text3);">— 초도품 전까지 불량 (선택)</span></div>
-        <div class="form-row three">
-          <div class="form-group">
-            <label class="form-label">치수</label>
-            <input type="number" id="p-su-d1" placeholder="0" min="0" oninput="calcSetupDefect()">
-          </div>
-          <div class="form-group">
-            <label class="form-label">찍힘</label>
-            <input type="number" id="p-su-d2" placeholder="0" min="0" oninput="calcSetupDefect()">
-          </div>
-          <div class="form-group">
-            <label class="form-label">성형</label>
-            <input type="number" id="p-su-d3" placeholder="0" min="0" oninput="calcSetupDefect()">
-          </div>
-        </div>
-        <div class="form-row three">
-          <div class="form-group">
-            <label class="form-label">스크레치</label>
-            <input type="number" id="p-su-d4" placeholder="0" min="0" oninput="calcSetupDefect()">
-          </div>
-          <div class="form-group">
-            <label class="form-label">조도</label>
-            <input type="number" id="p-su-d5" placeholder="0" min="0" oninput="calcSetupDefect()">
-          </div>
-          <div class="form-group">
-            <label class="form-label">셋업불량 합계</label>
-            <input type="number" id="p-su-defect-total" placeholder="0" readonly style="opacity:0.55;cursor:not-allowed;">
-          </div>
-        </div>
-        <div id="setup-only-note" style="background:var(--warning-bg);border:1px solid rgba(217,119,6,0.3);border-radius:var(--radius-sm);padding:10px 12px;font-size:12px;color:var(--warning);margin-top:4px;">
-          셋팅만 진행한 경우 생산수량 없이 셋팅 이력만 기록됩니다. 셋업 불량은 미입력해도 저장됩니다.
-        </div>
-      </div>
-
-      <!-- 주간 생산 시간 (양산만/셋팅+양산 유형일 때 표시) -->
+      <!-- 시간 관리 -->
       <div class="card" id="time-section">
 
-        <!-- 양산만: 시작~퇴근 1구간 -->
-        <div id="time-prod-only">
-          <div class="card-title">주간 생산 시간</div>
+        <!-- 설비 기준 안내 -->
+        <div style="background:var(--accent-soft);border-radius:var(--radius-sm);padding:8px 12px;margin-bottom:14px;font-size:11px;color:var(--accent);font-weight:600;">
+          📊 설비 기준: 09:00 ~ 익일 09:00 (24h) — 입력한 시간 기준으로 유형 자동판단
+        </div>
+
+        <!-- ① 조업 시간 -->
+        <div class="section-label-sm">① 조업 시간 <span style="font-weight:400;color:var(--text3);">— 설비 앞에 있었던 전체 시간</span></div>
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">작업 시작
+              <span style="font-size:10px;font-weight:400;color:var(--text3);display:block;">설비 앞에 선 시간</span>
+            </label>
+            <input type="time" id="p-work-start" oninput="onTimeInput()">
+          </div>
+          <div class="form-group">
+            <label class="form-label">작업 종료
+              <span style="font-size:10px;font-weight:400;color:var(--text3);display:block;">설비를 떠난 시간 (무인시작 기준)</span>
+            </label>
+            <input type="time" id="p-work-end" oninput="onTimeInput(); if(unattOn) updateUnattStart();">
+          </div>
+        </div>
+
+        <!-- ② 셋팅 시간 (선택) -->
+        <div class="section-label-sm" style="margin-top:12px;">② 셋팅 시간 <span style="font-weight:400;color:var(--text3);">— 해당하는 경우만 입력</span></div>
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">셋팅 시작
+              <span style="font-size:10px;font-weight:400;color:var(--text3);display:block;">첫 번째 셋팅 시작</span>
+            </label>
+            <input type="time" id="p-setup-start" oninput="onTimeInput()">
+          </div>
+          <div class="form-group">
+            <label class="form-label">셋팅 종료
+              <span style="font-size:10px;font-weight:400;color:var(--text3);display:block;">초도품 승인 시점</span>
+            </label>
+            <input type="time" id="p-setup-end" oninput="onTimeInput()">
+          </div>
+        </div>
+
+        <!-- 셋업 불량 (셋팅 있을 때 표시) -->
+        <div id="setup-section" style="display:none;margin-top:10px;padding:12px;background:var(--bg3);border-radius:var(--radius-sm);border:1px solid var(--border);">
+          <div style="font-size:11px;font-weight:600;color:var(--text2);margin-bottom:8px;">셋업 불량 <span style="font-weight:400;color:var(--text3);">— 초도품 전까지 불량 (선택)</span></div>
           <div class="form-row">
             <div class="form-group">
-              <label class="form-label">생산 시작 <span class="required">*</span></label>
-              <input type="time" id="p-start" oninput="calcCT(); if(unattOn) updateUnattStart();">
-            </div>
-            <div class="form-group">
-              <label class="form-label">퇴근 시간 <span class="required">*</span></label>
-              <input type="time" id="p-end" oninput="calcCT(); if(unattOn) updateUnattStart();">
+              <label class="form-label">셋업 불량 수량</label>
+              <input type="number" id="p-su-defect-total" placeholder="0" min="0">
             </div>
           </div>
+          <div id="setup-only-note" style="background:var(--warning-bg);border:1px solid rgba(217,119,6,0.3);border-radius:var(--radius-sm);padding:8px 12px;font-size:11px;color:var(--warning);margin-top:4px;">
+            셋팅만 진행한 경우 생산수량 없이 셋팅 이력만 기록됩니다.
+          </div>
+        </div>
+
+        <!-- ③ 생산 시간 (선택) -->
+        <div class="section-label-sm" style="margin-top:12px;">③ 생산 시간 <span style="font-weight:400;color:var(--text3);">— 해당하는 경우만 입력</span></div>
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">생산 시작
+              <span style="font-size:10px;font-weight:400;color:var(--text3);display:block;">첫 번째 양품 생산 시점</span>
+            </label>
+            <input type="time" id="p-start" oninput="onTimeInput()">
+          </div>
+          <div class="form-group">
+            <label class="form-label">생산 종료
+              <span style="font-size:10px;font-weight:400;color:var(--text3);display:block;">마지막 생산 완료 시점</span>
+            </label>
+            <input type="time" id="p-end" oninput="onTimeInput(); if(unattOn) updateUnattStart();">
+          </div>
+        </div>
+
+        <!-- 유인 생산실적 (생산 있을 때 표시) -->
+        <div id="prod-section" style="display:none;margin-top:10px;padding:12px;background:var(--bg3);border-radius:var(--radius-sm);border:1px solid var(--border);">
+          <div style="font-size:11px;font-weight:600;color:var(--text2);margin-bottom:8px;">유인 생산 실적</div>
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label">유인 생산수량 <span class="required">*</span></label>
+              <input type="number" id="p-att-qty2" placeholder="0" min="0" oninput="calcDefect('att'); calcCT();">
+            </div>
+          </div>
+          <div class="section-label-sm" style="margin-top:8px;">유인 불량 <span style="font-weight:400;color:var(--text3);">(선택)</span></div>
+          <div class="form-row three">
+            <div class="form-group">
+              <label class="form-label">치수</label>
+              <input type="number" id="p-att-d1" placeholder="0" min="0" oninput="calcDefect('att')">
+            </div>
+            <div class="form-group">
+              <label class="form-label">찍힘</label>
+              <input type="number" id="p-att-d2" placeholder="0" min="0" oninput="calcDefect('att')">
+            </div>
+            <div class="form-group">
+              <label class="form-label">성형</label>
+              <input type="number" id="p-att-d3" placeholder="0" min="0" oninput="calcDefect('att')">
+            </div>
+          </div>
+          <div class="form-row three">
+            <div class="form-group">
+              <label class="form-label">스크레치</label>
+              <input type="number" id="p-att-d4" placeholder="0" min="0" oninput="calcDefect('att')">
+            </div>
+            <div class="form-group">
+              <label class="form-label">조도</label>
+              <input type="number" id="p-att-d5" placeholder="0" min="0" oninput="calcDefect('att')">
+            </div>
+            <div class="form-group">
+              <label class="form-label">불량 합계</label>
+              <input type="number" id="p-att-defect-total" placeholder="0" readonly style="opacity:0.55;cursor:not-allowed;">
+            </div>
+          </div>
+          <div class="defect-etc-row">
+            <div class="form-group" style="flex:2;">
+              <label class="form-label">기타: <span style="font-weight:400;color:var(--text3);">(원인 직접입력)</span></label>
+              <input type="text" id="p-att-d6-note" placeholder="예) 공구 마모, 재료 이상...">
+            </div>
+            <div class="form-group" style="flex:1;">
+              <label class="form-label">수량</label>
+              <input type="number" id="p-att-d6" placeholder="0" min="0" oninput="calcDefect('att')">
+            </div>
+          </div>
+          <div class="calc-box" style="margin-top:6px;">
+            <span class="calc-label">유인 양품수 (유인수량 − 유인불량합계)</span>
+            <span class="calc-value" id="p-good-display">— ea</span>
+            <input type="hidden" id="p-good-qty">
+          </div>
+        </div>
+
+        <!-- 싸이클타임 -->
+        <div id="ct-section" style="display:none;margin-top:8px;">
           <div class="form-row full">
             <div class="form-group">
-              <label class="form-label">싸이클타임(초) <span class="required">*</span></label>
+              <label class="form-label">싸이클타임(초) <span class="required">*</span>
+                <span style="font-size:10px;font-weight:400;color:var(--text3);display:block;">장비 화면에 표시되는 가공시간</span>
+              </label>
               <input type="number" id="p-ct" placeholder="0.0" min="0" step="0.1" oninput="calcCT()">
             </div>
           </div>
@@ -1029,48 +1052,58 @@ textarea { resize: none; min-height: 68px; line-height: 1.5; font-size: 13px; }
           </div>
         </div>
 
-        <!-- 셋팅+양산: 셋팅 구간 + 생산 구간 분리 -->
-        <div id="time-setup-prod" style="display:none;">
-          <div class="card-title">셋팅 시간</div>
-          <div class="form-row">
-            <div class="form-group">
-              <label class="form-label">셋팅 시작 <span class="required">*</span></label>
-              <input type="time" id="p-setup-start" oninput="calcSetupTime()">
-            </div>
-            <div class="form-group">
-              <label class="form-label">셋팅 종료 <span class="required">*</span></label>
-              <input type="time" id="p-setup-end" oninput="calcSetupTime(); autoFillProdStart();">
-            </div>
+        <!-- 비가동 사유 -->
+        <div class="section-label-sm" style="margin-top:12px;">비가동 사유 <span style="font-weight:400;color:var(--text3);">(선택)</span></div>
+        <div class="form-row three">
+          <label class="idle-reason-btn">
+            <input type="radio" name="idle-reason" value="" onchange="onIdleReasonChange()" checked> 없음
+          </label>
+          <label class="idle-reason-btn">
+            <input type="radio" name="idle-reason" value="장비 고장" onchange="onIdleReasonChange()"> 장비 고장
+          </label>
+          <label class="idle-reason-btn">
+            <input type="radio" name="idle-reason" value="계획 휴무" onchange="onIdleReasonChange()"> 계획 휴무
+          </label>
+        </div>
+        <div id="idle-custom-wrap" style="display:none;margin-top:6px;">
+          <div class="form-group">
+            <label class="idle-reason-btn" style="width:100%;justify-content:flex-start;gap:8px;margin-bottom:4px;">
+              <input type="radio" name="idle-reason" value="__custom__" onchange="onIdleReasonChange()"> 직접입력
+            </label>
+            <input type="text" id="idle-custom-text" placeholder="비가동 사유 직접입력...">
           </div>
-          <div class="calc-box" id="setup-time-box" style="display:none;">
-            <span class="calc-label">셋팅 소요시간</span>
-            <span class="calc-value" id="setup-time-val">— 분</span>
-          </div>
+        </div>
 
-          <div class="card-title" style="margin-top:14px;">주간 생산 시간</div>
-          <div class="calc-box" style="margin-bottom:8px;">
-            <span class="calc-label">생산 시작 (셋팅 종료 자동 적용)</span>
-            <span class="calc-value" id="prod-start-display">셋팅 종료 입력 필요</span>
-          </div>
-          <div class="form-row">
-            <div class="form-group">
-              <label class="form-label">퇴근 시간 <span class="required">*</span></label>
-              <input type="time" id="p-end-sp" oninput="calcCTSetupProd(); if(unattOn) updateUnattStart();">
+        <!-- 타임라인 시각화 -->
+        <div id="time-timeline-wrap" style="display:none;margin-top:14px;">
+          <div style="font-size:11px;font-weight:600;color:var(--text3);margin-bottom:6px;">⏱️ 오늘의 조업 현황</div>
+          <div id="time-timeline-bar" style="width:100%;height:32px;border-radius:6px;overflow:hidden;display:flex;background:var(--bg3);"></div>
+          <div id="time-timeline-legend" style="display:flex;flex-wrap:wrap;gap:8px;margin-top:6px;font-size:10px;"></div>
+          <div id="time-timeline-summary" style="margin-top:8px;font-size:11px;color:var(--text2);line-height:1.9;background:var(--bg3);border-radius:var(--radius-sm);padding:8px 10px;"></div>
+        </div>
+
+        <!-- 자동판단 결과 -->
+        <div id="time-auto-result" style="display:none;margin-top:10px;">
+          <div style="background:var(--bg3);border:1px solid var(--border);border-radius:var(--radius-sm);padding:10px 12px;">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;">
+              <span style="font-size:11px;font-weight:600;color:var(--text3);">⚙️ 자동 판단 결과</span>
+              <span id="auto-type-badge" style="font-size:11px;font-weight:700;padding:2px 10px;border-radius:20px;background:var(--accent-soft);color:var(--accent);">—</span>
             </div>
-            <div class="form-group">
-              <label class="form-label">싸이클타임(초) <span class="required">*</span></label>
-              <input type="number" id="p-ct-sp" placeholder="0.0" min="0" step="0.1" oninput="calcCTSetupProd()">
+            <div style="display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:6px;font-size:11px;text-align:center;">
+              <div><div style="color:var(--text3);font-size:10px;">조업시간</div><div style="font-weight:700;" id="res-work-total">—</div></div>
+              <div><div style="color:var(--text3);font-size:10px;">셋팅</div><div style="font-weight:700;color:var(--warning);" id="res-setup-time">—</div></div>
+              <div><div style="color:var(--text3);font-size:10px;">생산</div><div style="font-weight:700;color:var(--accent);" id="res-work-time">—</div></div>
+              <div><div style="color:var(--text3);font-size:10px;">비가동</div><div style="font-weight:700;color:var(--danger);" id="res-idle-time">—</div></div>
             </div>
-          </div>
-          <div class="calc-box" id="ct-calc-box-sp" style="display:none;">
-            <span class="calc-label">이론 싸이클타임 (주간 생산시간 기준)</span>
-            <span class="calc-value" id="ct-calc-val-sp">— 초</span>
+            <div style="margin-top:6px;padding-top:6px;border-top:1px dashed var(--border);text-align:center;font-size:11px;">
+              24h 가동률 <span style="font-weight:700;font-size:13px;" id="res-avail-rate">—</span>
+            </div>
           </div>
         </div>
 
       </div>
 
-      <!-- 무인가동 -->
+            <!-- 무인가동 -->
       <div class="card" id="unatt-section" style="display:none;">
         <div class="card-title">무인가동</div>
         <div class="toggle-row" id="unatt-toggle" onclick="toggleUnatt()">
@@ -1079,9 +1112,25 @@ textarea { resize: none; min-height: 68px; line-height: 1.5; font-size: 13px; }
         </div>
         <div class="slide-panel" id="unatt-panel">
           <div style="margin-top:10px;">
-            <div class="calc-box">
-              <span class="calc-label">무인 시작시간 (퇴근시간 자동 적용)</span>
-              <span class="calc-value" id="unatt-start">퇴근시간 입력 필요</span>
+            <!-- 무인 시작시간 직접 입력 -->
+            <div class="form-row">
+              <div class="form-group">
+                <label class="form-label">무인 시작시간
+                  <span style="font-weight:400;color:var(--text3);font-size:10px;">— 작업/셋팅 종료시간 자동적용</span>
+                </label>
+                <input type="time" id="p-unatt-start-time" oninput="calcUnattIdleTime()">
+              </div>
+            </div>
+            <!-- 비가동 자동계산 표시 -->
+            <div id="unatt-idle-box" style="display:none;border-radius:var(--radius-sm);padding:7px 10px;font-size:12px;margin-bottom:6px;border-left:3px solid var(--warning);background:var(--warning-bg);color:var(--warning);"></div>
+            <!-- 셋팅만일 때 CT 입력 -->
+            <div id="unatt-ct-section" style="display:none;margin-top:4px;">
+              <div class="form-group">
+                <label class="form-label">싸이클타임(초) <span class="required">*</span>
+                  <span style="font-weight:400;color:var(--text3);font-size:10px;">— 이론 종료시간 계산용</span>
+                </label>
+                <input type="number" id="p-unatt-ct" placeholder="0.0" min="0" step="0.1">
+              </div>
             </div>
             <div style="font-size:12px;color:var(--text3);padding:8px 2px 0;line-height:1.6;">
               다음날 출근 후 <strong style="color:var(--warning);">무인가동 입력</strong> 탭에서 수량을 추가 입력해 주세요.
@@ -1090,7 +1139,7 @@ textarea { resize: none; min-height: 68px; line-height: 1.5; font-size: 13px; }
         </div>
       </div>
 
-      <button class="btn-submit" onclick="submitProduction()">생산일지 제출</button>
+      <button class="btn-submit" id="submit-btn">생산일지 제출</button>
     </div>
   </div>
 
@@ -1098,10 +1147,14 @@ textarea { resize: none; min-height: 68px; line-height: 1.5; font-size: 13px; }
   <div id="page-unatt" class="page">
 
     <!-- 탭 전환 -->
-    <div class="type-select-row" style="grid-template-columns:1fr 1fr;margin-bottom:12px;">
+    <div class="type-select-row" style="grid-template-columns:1fr 1fr 1fr;margin-bottom:12px;">
       <button class="type-btn active" id="unatt-tab-pending" onclick="switchUnattTab('pending')">
         <span class="type-icon">📋</span>
         <span class="type-label">미입력 목록</span>
+      </button>
+      <button class="type-btn" id="unatt-tab-edit" onclick="switchUnattTab('edit')">
+        <span class="type-icon">🔍</span>
+        <span class="type-label">수정하기</span>
       </button>
       <button class="type-btn" id="unatt-tab-add" onclick="switchUnattTab('add')">
         <span class="type-icon">➕</span>
@@ -1138,53 +1191,47 @@ textarea { resize: none; min-height: 68px; line-height: 1.5; font-size: 13px; }
             <input type="number" id="u-qty" placeholder="0" min="0" oninput="calcUnattEndTime()">
           </div>
         </div>
-
-        <!-- 이론 종료시간 자동계산 -->
         <div class="calc-box" id="u-theory-end-box" style="display:none;margin-bottom:10px;">
           <span class="calc-label">이론 종료시간 (CT × 수량 기준)</span>
           <span class="calc-value" id="u-theory-end-val">—</span>
         </div>
-
         <div class="section-label-sm" style="margin-top:4px;">무인 불량 <span style="font-weight:400;color:var(--text3);">(선택)</span></div>
         <div class="form-row three">
-          <div class="form-group">
-            <label class="form-label">치수</label>
-            <input type="number" id="u-d1" placeholder="0" min="0" oninput="calcDefect('unatt')">
-          </div>
-          <div class="form-group">
-            <label class="form-label">찍힘</label>
-            <input type="number" id="u-d2" placeholder="0" min="0" oninput="calcDefect('unatt')">
-          </div>
-          <div class="form-group">
-            <label class="form-label">성형</label>
-            <input type="number" id="u-d3" placeholder="0" min="0" oninput="calcDefect('unatt')">
-          </div>
+          <div class="form-group"><label class="form-label">치수</label><input type="number" id="u-d1" placeholder="0" min="0" oninput="calcDefect('unatt')"></div>
+          <div class="form-group"><label class="form-label">찍힘</label><input type="number" id="u-d2" placeholder="0" min="0" oninput="calcDefect('unatt')"></div>
+          <div class="form-group"><label class="form-label">성형</label><input type="number" id="u-d3" placeholder="0" min="0" oninput="calcDefect('unatt')"></div>
         </div>
         <div class="form-row three">
-          <div class="form-group">
-            <label class="form-label">스크레치</label>
-            <input type="number" id="u-d4" placeholder="0" min="0" oninput="calcDefect('unatt')">
-          </div>
-          <div class="form-group">
-            <label class="form-label">조도</label>
-            <input type="number" id="u-d5" placeholder="0" min="0" oninput="calcDefect('unatt')">
-          </div>
-          <div class="form-group">
-            <label class="form-label">불량 합계</label>
-            <input type="number" id="u-defect-total" placeholder="0" readonly style="opacity:0.55;cursor:not-allowed;">
-          </div>
+          <div class="form-group"><label class="form-label">스크레치</label><input type="number" id="u-d4" placeholder="0" min="0" oninput="calcDefect('unatt')"></div>
+          <div class="form-group"><label class="form-label">조도</label><input type="number" id="u-d5" placeholder="0" min="0" oninput="calcDefect('unatt')"></div>
+          <div class="form-group"><label class="form-label">불량 합계</label><input type="number" id="u-defect-total" placeholder="0" readonly style="opacity:0.55;cursor:not-allowed;"></div>
         </div>
         <div class="defect-etc-row">
-          <div class="form-group" style="flex:2;">
-            <label class="form-label">기타: <span style="font-weight:400;color:var(--text3);">(원인 직접입력)</span></label>
-            <input type="text" id="u-d6-note" placeholder="예) 공구 마모, 재료 이상...">
-          </div>
-          <div class="form-group" style="flex:1;">
-            <label class="form-label">수량</label>
-            <input type="number" id="u-d6" placeholder="0" min="0" oninput="calcDefect('unatt')">
-          </div>
+          <div class="form-group" style="flex:2;"><label class="form-label">기타: <span style="font-weight:400;color:var(--text3);">(원인 직접입력)</span></label><input type="text" id="u-d6-note" placeholder="예) 공구 마모, 재료 이상..."></div>
+          <div class="form-group" style="flex:1;"><label class="form-label">수량</label><input type="number" id="u-d6" placeholder="0" min="0" oninput="calcDefect('unatt')"></div>
         </div>
         <button class="btn-submit" onclick="submitUnatt()">무인 수량 제출</button>
+      </div>
+    </div>
+
+    <!-- 수정하기 탭 -->
+    <div id="unatt-edit-section" style="display:none;">
+      <div class="card">
+        <div class="card-title">🔍 무인 수량 수정</div>
+        <div style="font-size:12px;color:var(--text3);margin-bottom:10px;">LOT번호 또는 날짜로 검색하세요.</div>
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">LOT 검색</label>
+            <input type="text" id="unatt-edit-lot" placeholder="LOT번호 입력..." oninput="filterUnattEdit()" style="text-transform:uppercase;">
+          </div>
+          <div class="form-group">
+            <label class="form-label">날짜 검색</label>
+            <input type="date" id="unatt-edit-date" onchange="filterUnattEdit()">
+          </div>
+        </div>
+      </div>
+      <div id="unatt-edit-list">
+        <div class="empty" style="padding:24px 0;"><div class="empty-icon">🔍</div>LOT번호 또는 날짜를 입력하세요.</div>
       </div>
     </div>
 
@@ -1259,12 +1306,18 @@ textarea { resize: none; min-height: 68px; line-height: 1.5; font-size: 13px; }
         <div class="form-row">
           <div class="form-group">
             <label class="form-label">LOT 번호 <span class="required">*</span></label>
-            <input type="text" id="ua-lot" placeholder="LOT 번호">
+            <input type="text" id="ua-lot" placeholder="LOT 번호"
+              oninput="this.value=this.value.toUpperCase(); onUnattAddLotInput();">
           </div>
           <div class="form-group">
             <label class="form-label">공정</label>
             <input type="text" id="ua-process" readonly style="opacity:0.65;cursor:not-allowed;background:var(--bg3);" placeholder="설비 선택 시 자동입력">
           </div>
+        </div>
+        <!-- 작업지시 자동연동 안내 박스 -->
+        <div id="ua-wo-match-box" style="display:none;background:var(--accent-soft);border:1px solid var(--accent);border-radius:var(--radius-sm);padding:10px 14px;margin-top:4px;">
+          <div style="font-size:11px;font-weight:700;color:var(--accent);margin-bottom:4px;">📋 작업지시 자동 연동</div>
+          <div id="ua-wo-match-info" style="font-size:12px;color:var(--text2);line-height:1.8;"></div>
         </div>
       </div>
 
@@ -1340,6 +1393,8 @@ textarea { resize: none; min-height: 68px; line-height: 1.5; font-size: 13px; }
 
   <!-- ══════════════ 검사원 페이지 ══════════════ -->
   <div id="page-inspect" class="page">
+    <!-- 검사 대기 알림 (가공완료 LOT) -->
+    <div id="inspect-waiting-list" style="display:none;"></div>
     <!-- 검사원 오늘 현황 -->
     <div id="inspect-hero" style="display:none;">
       <div class="today-hero" style="background:linear-gradient(135deg,#065f46,#059669);">
@@ -1365,6 +1420,13 @@ textarea { resize: none; min-height: 68px; line-height: 1.5; font-size: 13px; }
     </div>
 
     <div id="inspect-form">
+
+      <!-- 수정 배너 -->
+      <div id="inspect-edit-banner" style="display:none;background:var(--warning-bg);border:1px solid var(--warning);border-radius:var(--radius-sm);padding:10px 14px;font-size:12px;color:var(--warning);font-weight:600;margin-bottom:12px;justify-content:space-between;align-items:center;">
+        <span>✏️ 수정 모드 — 모든 항목 수정 가능</span>
+        <button onclick="showInspectForm()" style="background:none;border:none;color:var(--warning);font-weight:700;cursor:pointer;font-size:13px;">✕ 취소</button>
+      </div>
+
       <div class="card">
         <div class="card-title">기본 정보</div>
         <div class="form-row">
@@ -1393,13 +1455,20 @@ textarea { resize: none; min-height: 68px; line-height: 1.5; font-size: 13px; }
         <div class="form-row full">
           <div class="form-group">
             <label class="form-label">LOT 번호 <span class="required">*</span></label>
-            <input type="text" id="i-lot" placeholder="LOT 번호">
+            <input type="text" id="i-lot" placeholder="LOT 번호"
+              oninput="this.value=this.value.toUpperCase(); onInspLotInput();">
           </div>
+        </div>
+        <!-- 작업지시 자동연동 안내 박스 -->
+        <div id="i-wo-match-box" style="display:none;background:var(--accent-soft);border:1px solid var(--accent);border-radius:var(--radius-sm);padding:10px 14px;margin-top:4px;">
+          <div style="font-size:11px;font-weight:700;color:var(--accent);margin-bottom:4px;">📋 작업지시 자동 연동</div>
+          <div id="i-wo-match-info" style="font-size:12px;color:var(--text2);line-height:1.8;"></div>
         </div>
       </div>
 
       <div class="card">
-        <div class="card-title">검사 공정</div>
+        <div class="card-title">검사 공정 <span class="required">*</span></div>
+        <div style="font-size:11px;color:var(--text3);margin-bottom:8px;">어떤 공정 후 검사인지 선택하세요. (자체: 선삭/연삭 · 외주: 열처리/전해연마/코팅)</div>
         <div class="process-grid" style="margin-bottom:8px;">
           <button class="process-btn" onclick="selProcess(this,'선삭')">선삭</button>
           <button class="process-btn" onclick="selProcess(this,'연삭')">연삭</button>
@@ -1409,13 +1478,13 @@ textarea { resize: none; min-height: 68px; line-height: 1.5; font-size: 13px; }
           <button class="process-btn" onclick="selProcess(this,'기타')">기타</button>
         </div>
         <div id="i-custom-wrap" style="display:none;">
-          <input type="text" id="i-custom" placeholder="공정명 직접 입력">
+          <input type="text" id="i-custom" placeholder="공정명 직접 입력" oninput="selectedProcess=this.value.trim()">
         </div>
       </div>
 
       <div class="card">
         <div class="card-title">검사 실적</div>
-        <div class="form-row three">
+        <div class="form-row">
           <div class="form-group">
             <label class="form-label">검사수 <span class="required">*</span></label>
             <input type="number" id="i-prod-qty" placeholder="0" min="0" oninput="calcInspect()">
@@ -1424,29 +1493,64 @@ textarea { resize: none; min-height: 68px; line-height: 1.5; font-size: 13px; }
             <label class="form-label">양품수 <span class="required">*</span></label>
             <input type="number" id="i-good-qty" placeholder="0" min="0" oninput="calcInspect()">
           </div>
-          <div class="form-group">
-            <label class="form-label">불량수</label>
-            <input type="number" id="i-defect-qty" placeholder="0" readonly style="opacity:0.55;cursor:not-allowed;">
-          </div>
+        </div>
+        <!-- 자동계산 결과 -->
+        <div class="calc-box" style="margin-top:4px;">
+          <span class="calc-label">불량 합계 (검사수 − 양품수)</span>
+          <span class="calc-value" id="i-defect-display" style="color:var(--danger);">— ea</span>
+          <input type="hidden" id="i-defect-qty">
         </div>
       </div>
 
       <div class="card">
-        <div class="card-title">불량 상세</div>
-        <div class="form-group" style="margin-bottom:10px;">
-          <label class="form-label">불량 부위</label>
-          <input type="text" id="i-loc" placeholder="불량 발생 부위">
+        <div class="card-title">불량 내역 <span style="font-size:11px;font-weight:400;color:var(--text3);">— 불량이 있는 경우 부위·종류별로 추가</span></div>
+
+        <!-- 불량 행 목록 -->
+        <div id="i-defect-list"></div>
+
+        <!-- 불량 추가 폼 -->
+        <div id="i-defect-add-form" style="background:var(--bg3);border-radius:var(--radius-sm);padding:10px;margin-top:8px;">
+          <div class="form-row" style="margin-bottom:8px;">
+            <div class="form-group">
+              <label class="form-label">불량 부위 <span style="font-weight:400;color:var(--text3);">(직접입력)</span></label>
+              <input type="text" id="i-def-loc" placeholder="예) 샹크, 헤드, 날부...">
+            </div>
+            <div class="form-group">
+              <label class="form-label">불량 종류</label>
+              <select id="i-def-type" onchange="onInspDefTypeChange()">
+                <option value="">선택</option>
+                <option value="성형">성형</option>
+                <option value="찍힘">찍힘</option>
+                <option value="치수">치수</option>
+                <option value="조도">조도</option>
+                <option value="직접입력">직접입력</option>
+              </select>
+            </div>
+          </div>
+          <div id="i-def-type-custom-wrap" style="display:none;margin-bottom:8px;">
+            <input type="text" id="i-def-type-custom" placeholder="불량 종류 직접 입력">
+          </div>
+          <div class="form-row" style="margin-bottom:0;">
+            <div class="form-group">
+              <label class="form-label">수량</label>
+              <input type="number" id="i-def-qty" placeholder="0" min="1">
+            </div>
+            <div class="form-group" style="display:flex;align-items:flex-end;">
+              <button onclick="addInspDefectRow()"
+                style="width:100%;padding:10px;background:var(--accent);color:white;border:none;border-radius:var(--radius-sm);font-family:'Noto Sans KR',sans-serif;font-size:13px;font-weight:600;cursor:pointer;">
+                + 추가
+              </button>
+            </div>
+          </div>
         </div>
-        <div class="form-group" style="margin-bottom:10px;">
-          <label class="form-label">불량 원인</label>
-          <input type="text" id="i-cause" placeholder="불량 원인">
-        </div>
-        <div class="form-group">
-          <label class="form-label">불량 구분</label>
-          <input type="text" id="i-type" placeholder="예: 치수불량, 외관불량">
+
+        <!-- 불량 합계 표시 -->
+        <div id="i-defect-summary" style="display:none;margin-top:10px;padding:8px 12px;background:var(--danger-bg);border-radius:var(--radius-sm);font-size:12px;color:var(--danger);font-weight:600;">
+          불량 내역 합계: <span id="i-defect-row-total">0</span>ea
         </div>
       </div>
-      <button class="btn-submit" onclick="submitInspect()">검사일지 제출</button>
+
+      <button class="btn-submit" id="inspect-submit-btn" onclick="submitInspect()">검사일지 제출</button>
     </div>
   </div>
 
@@ -1498,6 +1602,10 @@ textarea { resize: none; min-height: 68px; line-height: 1.5; font-size: 13px; }
       <!-- 전체 OEE 요약 -->
       <div class="oee-summary-row" id="st-oee-summary">
         <div class="oee-summary-item">
+          <div class="oee-summary-label">가용률</div>
+          <div class="oee-summary-val" id="st-avail">—</div>
+        </div>
+        <div class="oee-summary-item">
           <div class="oee-summary-label">성능효율</div>
           <div class="oee-summary-val" id="st-perf">—</div>
         </div>
@@ -1511,8 +1619,10 @@ textarea { resize: none; min-height: 68px; line-height: 1.5; font-size: 13px; }
         </div>
       </div>
       <div class="oee-formula-note">
-        OEE = 성능효율(수기CT÷이론CT) × 양품률
+        OEE = 가용률(활동÷조업) × 성능효율(수기CT÷이론CT) × 양품률(양품÷총생산)
       </div>
+      <!-- 계산식 상세 표시 -->
+      <div id="st-oee-formula-detail" style="background:var(--bg3);border-radius:var(--radius-sm);padding:10px 12px;margin-top:8px;font-size:11px;color:var(--text2);line-height:2.0;display:none;"></div>
       <!-- 설비별 OEE -->
       <div id="st-oee-equip-list" style="margin-top:12px;">
         <div class="empty" style="padding:16px 0;"><div class="empty-icon">📊</div>데이터 없음</div>
@@ -1630,33 +1740,7 @@ textarea { resize: none; min-height: 68px; line-height: 1.5; font-size: 13px; }
       </div>
     </div>
 
-    <!-- 섹션1: 생산일지 문서용 복사 추출 -->
-    <div class="card">
-      <div class="card-title">📋 생산일지 (ISO 13485) — 양식 붙여넣기용</div>
-      <div style="font-size:12px;color:var(--text3);margin-bottom:12px;line-height:1.7;">
-        아래 버튼을 누르면 엑셀 양식에 바로 붙여넣기 가능한 형태로 데이터를 추출합니다.<br>
-        <b style="color:var(--accent);">① 추출 → ② 전체선택 → ③ 복사 → ④ 엑셀 양식에 붙여넣기</b>
-      </div>
-      <button class="btn-submit" style="margin-bottom:10px;" onclick="extractForCopy('iso')">
-        📋 생산일지 데이터 추출
-      </button>
-      <!-- 추출 결과 영역 -->
-      <div id="copy-result-iso" style="display:none;">
-        <div class="copy-result-header">
-          <span id="copy-iso-count"></span>
-          <button class="btn-copy" onclick="copyToClipboard('copy-iso-area','copy-iso-btn')" id="copy-iso-btn">
-            📎 전체 복사
-          </button>
-        </div>
-        <textarea id="copy-iso-area" class="copy-area" readonly
-          onclick="this.select()" onfocus="this.select()"></textarea>
-        <div style="font-size:11px;color:var(--text3);margin-top:6px;">
-          💡 위 영역 클릭 → Ctrl+A → Ctrl+C → 엑셀 양식 첫 번째 셀에 Ctrl+V
-        </div>
-      </div>
-    </div>
-
-    <!-- 섹션2: 데이터 다운로드 -->
+    <!-- 데이터 다운로드 -->
     <div class="card">
       <div class="card-title">📥 데이터 다운로드</div>
       <button class="btn-excel" onclick="downloadExcel('iso')">
@@ -1701,25 +1785,123 @@ textarea { resize: none; min-height: 68px; line-height: 1.5; font-size: 13px; }
 
   </div>
 
+  <!-- ══════════════ 작업지시 페이지 ══════════════ -->
+  <div id="page-workorder" class="page">
+    <div class="card">
+      <div class="card-title" id="wo-form-title">📋 작업지시 등록</div>
+
+      <!-- 수정모드 배너 -->
+      <div id="wo-edit-banner" style="display:none;background:var(--warning-bg);border:1px solid var(--warning);border-radius:var(--radius-sm);padding:10px 14px;font-size:12px;color:var(--warning);font-weight:600;margin-bottom:12px;justify-content:space-between;align-items:center;">
+        <span>✏️ 수정 모드</span>
+        <button onclick="cancelWorkOrderEdit()" style="background:none;border:none;color:var(--warning);font-weight:700;cursor:pointer;font-size:13px;">✕ 취소</button>
+      </div>
+
+      <div style="font-size:12px;color:var(--text3);margin-bottom:12px;line-height:1.7;">
+        관리자가 LOT별 작업지시 수량을 등록합니다.<br>
+        등록 후 LOT현황 탭에서 진행상황을 실시간으로 확인할 수 있습니다.
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">LOT 번호 <span class="required">*</span></label>
+          <input type="text" id="wo-lot" placeholder="LOT 번호" oninput="this.value=this.value.toUpperCase()">
+        </div>
+        <div class="form-group">
+          <label class="form-label">작업지시 수량 <span class="required">*</span></label>
+          <input type="number" id="wo-qty" placeholder="0" min="1">
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">거래처</label>
+          <input type="text" id="wo-customer" placeholder="거래처명">
+        </div>
+        <div class="form-group">
+          <label class="form-label">모델명</label>
+          <input type="text" id="wo-model" placeholder="모델명" oninput="this.value=this.value.toUpperCase()">
+        </div>
+      </div>
+      <div class="form-row full">
+        <div class="form-group">
+          <label class="form-label">공정 <span class="required">*</span></label>
+          <select id="wo-process">
+            <option value="">선택</option>
+            <option value="선삭">선삭</option>
+            <option value="연삭">연삭</option>
+            <option value="페인팅">페인팅</option>
+            <option value="마킹">마킹</option>
+          </select>
+        </div>
+      </div>
+      <div class="form-row full">
+        <div class="form-group">
+          <label class="form-label">작업지시일 <span style="font-size:11px;font-weight:400;color:var(--text3);">— 미입력 시 목록에 표시 안 됨</span></label>
+          <input type="date" id="wo-date">
+        </div>
+      </div>
+      <button class="btn-submit" id="wo-submit-btn" onclick="saveWorkOrder()">작업지시 등록</button>
+    </div>
+
+    <!-- 등록된 작업지시 목록 -->
+    <div class="card">
+      <div class="card-title">등록된 작업지시 목록</div>
+      <div id="workorder-list">
+        <div class="empty" style="padding:20px 0;"><div class="empty-icon">📋</div>등록된 작업지시가 없습니다.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════════ LOT 현황 페이지 ══════════════ -->
+  <div id="page-lot" class="page">
+
+    <!-- 탭 버튼 -->
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:12px;">
+      <button id="lot-tab-btn-active" onclick="switchLotTab('active',this)"
+        style="padding:12px 8px;border-radius:var(--radius);border:2px solid var(--accent);background:var(--accent);color:white;font-family:'Noto Sans KR',sans-serif;font-size:13px;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:6px;">
+        📋 진행중 <span id="lot-tab-active-cnt" style="background:rgba(255,255,255,0.25);border-radius:20px;padding:1px 8px;font-size:11px;">0</span>
+      </button>
+      <button id="lot-tab-btn-done" onclick="switchLotTab('done',this)"
+        style="padding:12px 8px;border-radius:var(--radius);border:2px solid var(--border);background:var(--bg2);color:var(--text3);font-family:'Noto Sans KR',sans-serif;font-size:13px;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:6px;">
+        ✅ 완료 <span id="lot-tab-done-cnt" style="background:var(--bg3);border-radius:20px;padding:1px 8px;font-size:11px;">0</span>
+      </button>
+    </div>
+
+    <!-- 진행중 목록 -->
+    <div id="lot-list-active">
+      <div class="empty" style="padding:24px 0;"><div class="empty-icon">📊</div>작업지시를 등록하면 현황이 표시됩니다.<br><span style="font-size:11px;color:var(--text3);">작업지시 탭에서 먼저 등록해주세요.</span></div>
+    </div>
+
+    <!-- 완료 목록 -->
+    <div id="lot-list-done" style="display:none;">
+      <div class="empty" style="padding:24px 0;"><div class="empty-icon">✅</div>완료된 작업지시가 없습니다.</div>
+    </div>
+
+  </div>
+
 </div><!-- /main -->
 
-<!-- 하단 네비 -->
 <div class="bottom-nav">
+  <button class="nav-btn" onclick="goPage('workorder',this)">
+    <span class="nav-icon">📋</span>작업지시
+  </button>
   <button class="nav-btn active" onclick="goPage('input',this)">
-    <span class="nav-icon">✏️</span>입력
+    <span class="nav-icon">✏️</span>생산입력
   </button>
   <button class="nav-btn" onclick="goPage('unatt',this)">
-    <span class="nav-icon">🌙</span>무인가동
+    <span class="nav-icon">🌙</span>무인입력
     <div class="nav-dot" id="unatt-dot"></div>
   </button>
   <button class="nav-btn" onclick="goPage('inspect',this)">
-    <span class="nav-icon">🔍</span>검사
+    <span class="nav-icon">🔍</span>검사일지
+    <div class="nav-dot" id="inspect-dot"></div>
+  </button>
+  <button class="nav-btn" onclick="goPage('lot',this)">
+    <span class="nav-icon">📊</span>LOT현황
   </button>
   <button class="nav-btn" onclick="goPage('status',this)">
-    <span class="nav-icon">📊</span>현황
+    <span class="nav-icon">⚙️</span>설비효율
   </button>
   <button class="nav-btn" onclick="goPage('search',this)">
-    <span class="nav-icon">🗂️</span>조회
+    <span class="nav-icon">🗂️</span>생산조회
   </button>
   <button class="nav-btn" onclick="goPage('excel',this)">
     <span class="nav-icon">📥</span>출력
@@ -1799,6 +1981,7 @@ function prodToDb(l) {
     ct: l.ct||null, theory_ct: l.theoryCT||null,
     work_mins: l.workMins||0, perf_rate: l.perfRate||null, qual_rate: l.qualRate||null,
     start_t: l.startT||'', end_t: l.endT||'', work_time_str: l.workTimeStr||'',
+    work_start_t: l.workStartT||'', work_end_t: l.workEndT||'',
     setup_start_t: l.setupStartT||'', setup_end_t: l.setupEndT||'',
     setup_mins: l.setupMins||0, setup_time_str: l.setupTimeStr||'',
     setup_defect: l.setupDefect||0,
@@ -1826,6 +2009,7 @@ function dbToProd(r) {
     ct: r.ct, theoryCT: r.theory_ct,
     workMins: r.work_mins, perfRate: r.perf_rate, qualRate: r.qual_rate,
     startT: r.start_t, endT: r.end_t, workTimeStr: r.work_time_str,
+    workStartT: r.work_start_t||'', workEndT: r.work_end_t||'',
     setupStartT: r.setup_start_t, setupEndT: r.setup_end_t,
     setupMins: r.setup_mins, setupTimeStr: r.setup_time_str,
     setupDefect: r.setup_defect,
@@ -1872,6 +2056,26 @@ async function loadAllFromDb() {
     sbSelect('production_logs', 'select=*'),
     sbSelect('inspection_logs', 'select=*')
   ]);
+
+  // DB 연결 실패 시 (빈 배열 반환) localStorage 유지
+  if (prodRows.length === 0 && inspRows.length === 0) {
+    const localProd = lsLoad(LS_PROD);
+    const localInsp = lsLoad(LS_INSPECT);
+    if (localProd.length > 0 || localInsp.length > 0) {
+      // localStorage 데이터로 유지
+      todayLots.length = 0;
+      localProd.forEach(r => todayLots.push(r));
+      SAMPLE_PROD.length = 0;
+      todayLots.forEach(r => SAMPLE_PROD.push(r));
+      iLots.length = 0;
+      localInsp.forEach(r => iLots.push(r));
+      renderTodayHero(); renderUnattList(); renderStatus(); filterRecords();
+      showToast(`로컬 데이터 로드 (생산 ${todayLots.length}건 · 검사 ${iLots.length}건)`, 'info');
+      return;
+    }
+  }
+
+  // DB 데이터로 갱신
   todayLots.length = 0;
   prodRows.map(dbToProd).forEach(r => todayLots.push(r));
   lsSave(LS_PROD, todayLots);
@@ -1960,26 +2164,28 @@ function downloadExcel(type) {
     });
     const H1 = [['날짜','작업자','거래처','공정','모델명','LOT','원자재 LOT',
       '표준CT(초)','이론CT(초)',
-      '주간시작','주간종료','무인시작','무인종료',
-      '주간생산수','무인생산수','SET UP',
+      '조업시작','조업종료','셋팅시작','셋팅종료','생산시작','생산종료',
+      '무인시작','무인종료',
+      '유인생산수','무인생산수','SET UP불량',
       '유인양품',
       '유인불량_치수','유인불량_찍힘','유인불량_성형','유인불량_스크레치','유인불량_조도','유인불량_합계',
       '무인양품',
       '무인불량_치수','무인불량_찍힘','무인불량_성형','무인불량_스크레치','무인불량_조도','무인불량_합계',
-      '성능효율(%)','양품률(%)','비고']];
+      '가용률(%)','성능효율(%)','양품률(%)','비고']];
     const ROWS = sorted.map(r => [
       s(r.date), s(r.worker), s(r.customer), s(r.process), s(r.model), s(r.lot),
       s(r.rawLot), n(r.ct)||'', n(r.theoryCT)||'',
-      s(r.startT), s(r.endT),
-      r.unatt ? s(r.endT) : '', '',
-      // 셋팅+양산: 셋팅 시간 별도 표시
+      s(r.workStartT||''), s(r.workEndT||r.endT||''),
       s(r.setupStartT||''), s(r.setupEndT||''),
-      n(r.attQty), n(r.unattQty), n(r.setupQty),
+      s(r.startT||''), s(r.endT||''),
+      r.unatt ? s(r.unattStartInput||r.setupEndT||r.endT||'') : '',
+      r.unatt ? (r.unattEndDisplay||r.unattEndT||'미입력') : '',
+      n(r.attQty), n(r.unattQty), n(r.setupDefect),
       Math.max(0, n(r.attQty) - n(r.defect)),
       n(r.attD1), n(r.attD2), n(r.attD3), n(r.attD4), n(r.attD5), n(r.defect),
       Math.max(0, n(r.unattQty) - n(r.unattDefect)),
       n(r.unattD1), n(r.unattD2), n(r.unattD3), n(r.unattD4), n(r.unattD5), n(r.unattDefect),
-      n(r.perfRate)||'', n(r.qualRate)||'',
+      n(r.availRate)||'', n(r.perfRate)||'', n(r.qualRate)||'',
       s(r.note)
     ]);
     const SUM = [['합계','','','','','','','','','','','','',
@@ -2097,31 +2303,8 @@ async function init() {
   // ── localStorage 복원 ─────────────────────────────────────
   renderTodayHero();
 
-  // 검사일지 복원
-  const todayInsp = iLots.filter(l => l.date === dateStr);
-  if (todayInsp.length > 0) {
-    document.getElementById('inspect-hero').style.display='block';
-    document.getElementById('inspect-form').style.display='none';
-    const last = todayInsp[todayInsp.length-1];
-    document.getElementById('i-hero-info').textContent=`검사원 ${last.worker}`;
-    document.getElementById('i-hero-prod').textContent=todayInsp.reduce((s,l)=>s+l.prod,0).toLocaleString();
-    document.getElementById('i-hero-good').textContent=todayInsp.reduce((s,l)=>s+l.good,0).toLocaleString();
-    document.getElementById('i-hero-defect').textContent=todayInsp.reduce((s,l)=>s+l.defect,0);
-    document.getElementById('i-lot-list').innerHTML=todayInsp.slice().reverse().map(l=>`
-      <div class="lot-card">
-        <div class="lot-card-top">
-          <div class="lot-card-title">${l.lot} · ${l.process}</div>
-          <div class="lot-card-time">${l.time}</div>
-        </div>
-        <div class="lot-card-info">${l.worker}</div>
-        <div class="chips">
-          <span class="chip chip-blue">검사 ${l.prod}ea</span>
-          <span class="chip chip-green">양품 ${l.good}ea</span>
-          ${l.defect>0?`<span class="chip chip-red">불량 ${l.defect}ea</span>`:''}
-        </div>
-      </div>
-    `).join('');
-  }
+  // 검사일지 복원 — renderInspectHero로 통일
+  renderInspectHero(dateStr);
 
   // 거래처 드롭다운 초기화
   renderCustomerSelect('p-customer-select','p-customer-new');
@@ -2147,9 +2330,19 @@ function goPage(name, btn) {
   document.getElementById('page-'+name).classList.add('active');
   btn.classList.add('active');
   window.scrollTo(0,0);
-  if (name === 'status')  renderStatus();
-  if (name === 'search')  filterRecords();
-  if (name === 'unatt')   renderUnattList();
+  if (name === 'input') {
+    renderTodayHero();
+    // 수정 모드가 아닌데 폼이 열려 있으면 초기화 (다른 탭 갔다 돌아올 때 잔류값 제거)
+    if (!editingRecord && document.getElementById('input-form').style.display !== 'none') {
+      showInputForm();
+    }
+  }
+  if (name === 'status')    renderStatus();
+  if (name === 'search')    filterRecords();
+  if (name === 'unatt')     renderUnattList();
+  if (name === 'lot')       renderLotStatus();
+  if (name === 'inspect')   renderInspectWaiting();
+  if (name === 'workorder') renderWorkorderList();
 }
 
 // ── 생산일지 입력 ────────────────────────────────────────
@@ -2160,29 +2353,203 @@ const PROCESS_MAP = { CNC:'선삭', 연삭:'연삭', 페인팅:'페인팅', 마�
 let inputType = 'prod';
 function switchInputType(type) {
   inputType = type;
-  // 버튼 활성화
-  ['prod','setup_prod','setup'].forEach(t => {
-    document.getElementById('type-btn-'+t).classList.toggle('active', type===t);
-  });
   const isProd      = (type === 'prod');
   const isSetupProd = (type === 'setup_prod');
   const isSetup     = (type === 'setup');
-  const hasEquip    = HAS_UNATT.includes((document.getElementById('p-equip').value||'').split('|')[0]);
+  const process     = (document.getElementById('p-equip').value||'').split('|')[0];
+  const hasEquip    = HAS_UNATT.includes(process);
 
   // 생산 실적: 양산만 + 셋팅+양산
-  document.getElementById('prod-section').style.display    = (isProd || isSetupProd) ? 'block' : 'none';
+  document.getElementById('prod-section').style.display  = (isProd||isSetupProd) ? 'block' : 'none';
   // 셋업 불량: 셋팅만 + 셋팅+양산
-  document.getElementById('setup-section').style.display   = (isSetup || isSetupProd) ? 'block' : 'none';
-  // 가동시간 섹션 분기
-  document.getElementById('time-section').style.display    = (isProd || isSetupProd) ? 'block' : 'none';
-  document.getElementById('time-prod-only').style.display  = isProd      ? 'block' : 'none';
-  document.getElementById('time-setup-prod').style.display = isSetupProd ? 'block' : 'none';
-  // 무인가동: 양산만 + 셋팅+양산 + 해당 설비
-  document.getElementById('unatt-section').style.display   = (isProd || isSetupProd) && hasEquip ? 'block' : 'none';
-  // 셋팅만 안내문구 표시 조건
-  const note = document.getElementById('setup-only-note');
-  if (note) note.style.display = isSetup ? 'block' : 'none';
-  if (!isProd && !isSetupProd) setUnatt(false);
+  document.getElementById('setup-section').style.display = (isSetup||isSetupProd) ? 'block' : 'none';
+  // 무인가동: CNC/연삭이고 비가동이 아닌 경우
+  document.getElementById('unatt-section').style.display = hasEquip && type !== 'idle' ? 'block' : 'none';
+  if (type === 'idle') setUnatt(false);
+}
+
+// ── LOT 입력 시 작업지시 자동 연동 ─────────────────────
+function onLotInput() {
+  const lot     = (document.getElementById('p-lot').value || '').trim().toUpperCase();
+  const matchBox  = document.getElementById('wo-match-box');
+  const matchInfo = document.getElementById('wo-match-info');
+  if (!matchBox || !matchInfo) return;
+
+  if (!lot) { matchBox.style.display = 'none'; return; }
+
+  const orders = loadWorkOrders();
+  const order  = orders.find(o => o.lot === lot);
+
+  if (!order) { matchBox.style.display = 'none'; return; }
+
+  // 작업지시 발견 → 거래처/모델 자동 세팅
+  const customer = order.customer || '';
+  const model    = order.model    || '';
+  const process  = order.process  || '';
+
+  // 거래처 세팅
+  if (customer) {
+    const cSel = document.getElementById('p-customer-select');
+    const cHid = document.getElementById('p-customer');
+    const cNew = document.getElementById('p-customer-new');
+    // 드롭다운에 해당 거래처 옵션이 있으면 선택, 없으면 추가 후 선택
+    let found = false;
+    for (let opt of cSel.options) {
+      if (opt.value === customer) { cSel.value = customer; found = true; break; }
+    }
+    if (!found) {
+      const o = document.createElement('option');
+      o.value = customer; o.textContent = customer;
+      cSel.insertBefore(o, cSel.lastElementChild);
+      cSel.value = customer;
+    }
+    cHid.value = customer;
+    if (cNew) { cNew.style.display = 'none'; cNew.value = ''; }
+    // 모델 드롭다운 갱신
+    renderModelSelect('p-model-select', 'p-model-new', customer);
+  }
+
+  // 모델 세팅
+  if (model) {
+    const mSel = document.getElementById('p-model-select');
+    const mHid = document.getElementById('p-model');
+    const mNew = document.getElementById('p-model-new');
+    let found = false;
+    for (let opt of mSel.options) {
+      if (opt.value === model) { mSel.value = model; found = true; break; }
+    }
+    if (!found) {
+      const o = document.createElement('option');
+      o.value = model; o.textContent = model;
+      mSel.insertBefore(o, mSel.lastElementChild);
+      mSel.value = model;
+    }
+    mHid.value = model;
+    if (mNew) { mNew.style.display = 'none'; mNew.value = ''; }
+  }
+
+  // 안내 박스 표시
+  matchBox.style.display = 'block';
+  matchInfo.innerHTML =
+    `거래처: <b>${customer || '—'}</b> &nbsp;·&nbsp; ` +
+    `모델: <b>${model || '—'}</b> &nbsp;·&nbsp; ` +
+    `공정: <b>${process || '—'}</b> &nbsp;·&nbsp; ` +
+    `지시수량: <b>${order.qty}ea</b>`;
+}
+
+// ── 검사일지 LOT 입력 시 작업지시/생산 자동 연동 ──────────
+function onInspLotInput() {
+  const lot      = (document.getElementById('i-lot').value || '').trim().toUpperCase();
+  const matchBox  = document.getElementById('i-wo-match-box');
+  const matchInfo = document.getElementById('i-wo-match-info');
+  if (!matchBox || !matchInfo) return;
+
+  if (!lot) { matchBox.style.display = 'none'; return; }
+
+  // 작업지시에서 먼저 찾기
+  const orders  = loadWorkOrders();
+  const order   = orders.find(o => o.lot === lot);
+
+  // 생산 기록에서 거래처/모델 찾기 (작업지시 없어도 생산기록 있으면 연동)
+  const prodRec = todayLots.find(l => l.lot === lot);
+
+  if (!order && !prodRec) { matchBox.style.display = 'none'; return; }
+
+  const customer = order?.customer || prodRec?.customer || '';
+  const model    = order?.model    || prodRec?.model    || '';
+  const process  = order?.process  || '';
+
+  // 거래처/모델 자동 세팅
+  if (customer) {
+    const el = document.getElementById('i-customer');
+    if (el) el.value = customer;
+  }
+  if (model) {
+    const el = document.getElementById('i-model');
+    if (el) el.value = model;
+  }
+
+  // 가공양품 계산 (LOT 전체)
+  const lotRecs  = todayLots.filter(l => l.lot === lot);
+  const totalGood = lotRecs.reduce((s,l) =>
+    s + Math.max(0,(l.attQty||0)-(l.defect||0)) + Math.max(0,(l.unattQty||0)-(l.unattDefect||0)), 0);
+
+  // 안내 박스 표시
+  matchBox.style.display = 'block';
+  matchInfo.innerHTML =
+    `거래처: <b>${customer || '—'}</b> &nbsp;·&nbsp; ` +
+    `모델: <b>${model || '—'}</b>` +
+    (process ? ` &nbsp;·&nbsp; 공정: <b>${process}</b>` : '') +
+    (order ? ` &nbsp;·&nbsp; 작업지시: <b>${order.qty}ea</b>` : '') +
+    (totalGood > 0 ? ` &nbsp;·&nbsp; 가공양품: <b>${totalGood}ea</b>` : '');
+}
+
+// ── 무인LOT추가 LOT 입력 시 작업지시 자동 연동 ──────────
+function onUnattAddLotInput() {
+  const lot       = (document.getElementById('ua-lot').value || '').trim().toUpperCase();
+  const matchBox  = document.getElementById('ua-wo-match-box');
+  const matchInfo = document.getElementById('ua-wo-match-info');
+  if (!matchBox || !matchInfo) return;
+
+  if (!lot) { matchBox.style.display = 'none'; return; }
+
+  const orders  = loadWorkOrders();
+  const order   = orders.find(o => o.lot === lot);
+  const prodRec = todayLots.find(l => l.lot === lot);
+
+  if (!order && !prodRec) { matchBox.style.display = 'none'; return; }
+
+  const customer = order?.customer || prodRec?.customer || '';
+  const model    = order?.model    || prodRec?.model    || '';
+  const process  = order?.process  || prodRec?.process  || '';
+
+  // 거래처/모델 자동 세팅
+  const uaCustSel = document.getElementById('ua-customer-select');
+  const uaCustHid = document.getElementById('ua-customer');
+  const uaModSel  = document.getElementById('ua-model-select');
+  const uaModHid  = document.getElementById('ua-model');
+
+  if (customer && uaCustSel) {
+    let found = false;
+    for (let o of uaCustSel.options) {
+      if (o.value === customer) { uaCustSel.value = customer; found = true; break; }
+    }
+    if (!found) {
+      const o = document.createElement('option');
+      o.value = customer; o.textContent = customer;
+      uaCustSel.insertBefore(o, uaCustSel.lastElementChild);
+      uaCustSel.value = customer;
+    }
+    if (uaCustHid) uaCustHid.value = customer;
+    renderModelSelect('ua-model-select', 'ua-model-new', customer);
+  }
+
+  if (model && uaModSel) {
+    let found = false;
+    for (let o of uaModSel.options) {
+      if (o.value === model) { uaModSel.value = model; found = true; break; }
+    }
+    if (!found) {
+      const o = document.createElement('option');
+      o.value = model; o.textContent = model;
+      uaModSel.insertBefore(o, uaModSel.lastElementChild);
+      uaModSel.value = model;
+    }
+    if (uaModHid) uaModHid.value = model;
+  }
+
+  // 가공양품 계산
+  const lotRecs   = todayLots.filter(l => l.lot === lot);
+  const totalGood = lotRecs.reduce((s,l) =>
+    s + Math.max(0,(l.attQty||0)-(l.defect||0)) + Math.max(0,(l.unattQty||0)-(l.unattDefect||0)), 0);
+
+  matchBox.style.display = 'block';
+  matchInfo.innerHTML =
+    `거래처: <b>${customer || '—'}</b> &nbsp;·&nbsp; ` +
+    `모델: <b>${model || '—'}</b>` +
+    (process ? ` &nbsp;·&nbsp; 공정: <b>${process}</b>` : '') +
+    (order ? ` &nbsp;·&nbsp; 작업지시: <b>${order.qty}ea</b>` : '') +
+    (totalGood > 0 ? ` &nbsp;·&nbsp; 기존 가공양품: <b>${totalGood}ea</b>` : '');
 }
 
 function onEquipChange() {
@@ -2199,6 +2566,14 @@ function onEquipChange() {
   const processEl = document.getElementById('p-process');
   if(processEl) processEl.value = PROCESS_MAP[type] || '';
 
+  // 무인가동 섹션 — CNC/연삭이면 항상 표시, 페인팅/마킹이면 숨김
+  const hasEquip = HAS_UNATT.includes(type);
+  const unattSec = document.getElementById('unatt-section');
+  if(unattSec) {
+    unattSec.style.display = hasEquip ? 'block' : 'none';
+    if(!hasEquip) setUnatt(false);
+  }
+
   document.getElementById('unatt-section').style.display =
     HAS_UNATT.includes(type) && (inputType === 'prod' || inputType === 'setup_prod') ? 'block' : 'none';
   if(!HAS_UNATT.includes(type)) setUnatt(false);
@@ -2213,20 +2588,59 @@ function setUnatt(v) {
   document.getElementById('unatt-label').classList.toggle('on', v);
   document.getElementById('unatt-label').textContent = v ? '무인가동 있음 (ON)' : '무인가동 있음';
   document.getElementById('unatt-panel').classList.toggle('open', v);
+  // 셋팅만: CT 입력란 표시 (양산만/셋팅+양산은 이미 CT 있음)
+  const ctSec = document.getElementById('unatt-ct-section');
+  if(ctSec) ctSec.style.display = v && inputType === 'setup' ? 'block' : 'none';
   if(v) updateUnattStart();
 }
 function updateUnattStart() {
-  // 셋팅+양산은 p-end-sp, 그 외는 p-end
-  const endId = (inputType === 'setup_prod') ? 'p-end-sp' : 'p-end';
-  const t = document.getElementById(endId).value;
-  document.getElementById('unatt-start').textContent = t || '퇴근시간 입력 필요';
+  // 조업종료(p-work-end) 우선, 없으면 생산종료/셋팅종료
+  const t = document.getElementById('p-work-end').value
+    || document.getElementById('p-end').value
+    || document.getElementById('p-setup-end').value;
+  const input = document.getElementById('p-unatt-start-time');
+  if (input && t && !input.value) {
+    input.value = t;
+    calcUnattIdleTime();
+  }
+}
+
+function calcUnattIdleTime() {
+  const unattStartEl = document.getElementById('p-unatt-start-time');
+  const idleBox      = document.getElementById('unatt-idle-box');
+  if (!unattStartEl || !idleBox) return;
+
+  const unattStart = unattStartEl.value;
+  // 기준 종료시간 (셋팅종료 or 작업종료)
+  const refEnd = inputType === 'setup'
+    ? document.getElementById('p-setup-end').value
+    : document.getElementById('p-end').value;
+
+  if (!unattStart || !refEnd) { idleBox.style.display = 'none'; return; }
+
+  const toM = t => { const [h,m] = t.split(':').map(Number); return h*60+m; };
+  let idleMins = toM(unattStart) - toM(refEnd);
+  if (idleMins < 0) idleMins += 1440;
+
+  if (idleMins > 0) {
+    const h = Math.floor(idleMins/60), m = idleMins%60;
+    idleBox.style.display = 'block';
+    idleBox.textContent = `⚠️ 비가동 ${h > 0 ? h+'시간 ' : ''}${m > 0 ? m+'분' : ''} — ${refEnd} 종료 후 ${unattStart} 무인 시작`;
+  } else {
+    idleBox.style.display = 'none';
+  }
 }
 document.addEventListener('DOMContentLoaded', () => {
   document.getElementById('p-end').addEventListener('input', () => {
     calcCT(); if(unattOn) updateUnattStart();
   });
-  document.getElementById('p-end-sp').addEventListener('input', () => {
-    calcCTSetupProd(); if(unattOn) updateUnattStart();
+  // 제출 버튼 기본 이벤트 등록
+  document.getElementById('submit-btn').addEventListener('click', () => {
+    if (editingRecord) {
+      saveEdit();
+    } else {
+      submitProduction();
+    }
   });
 });
 
@@ -2256,30 +2670,16 @@ function autoFillProdStart() {
   // p-start에 값 설정 (저장용)
   const ps = document.getElementById('p-start');
   if (ps) ps.value = e;
-  calcCTSetupProd();
+  
 }
 
 // 셋팅+양산 CT 계산 (생산시간 = 양산시작~퇴근)
-function calcCTSetupProd() {
-  const s  = document.getElementById('p-setup-end').value;
-  const e  = document.getElementById('p-end-sp') ? document.getElementById('p-end-sp').value : '';
-  const aq = parseInt(document.getElementById('p-att-qty2').value)||0;
-  const box = document.getElementById('ct-calc-box-sp');
-  if (!s || !e || aq <= 0) { if(box) box.style.display='none'; return; }
-  const [sh,sm]=s.split(':').map(Number),[eh,em]=e.split(':').map(Number);
-  let min=(eh*60+em)-(sh*60+sm); if(min<=0) min+=1440;
-  if(box) {
-    box.style.display='flex';
-    document.getElementById('ct-calc-val-sp').textContent = (min*60/aq).toFixed(1)+' 초';
-  }
-  if(unattOn) updateUnattStart();
-}
 function calcDefect(type) {
   if (type === 'att') {
     const ids = ['p-att-d1','p-att-d2','p-att-d3','p-att-d4','p-att-d5','p-att-d6'];
     const total = ids.reduce((s,id)=>s+(parseInt(document.getElementById(id)?.value)||0),0);
     document.getElementById('p-att-defect-total').value = total;
-    const prod = parseInt(document.getElementById('p-prod-qty').value)||0;
+    const prod = parseInt(document.getElementById('p-att-qty2').value)||0;
     const good = Math.max(0, prod - total);
     document.getElementById('p-good-qty').value = good;
     document.getElementById('p-good-display').textContent = good + ' ea';
@@ -2311,7 +2711,7 @@ async function submitProduction() {
   // 공통 필수항목
   const commonReq = [
     ['p-date','작업 날짜'],['p-equip','설비'],['p-worker','작업자'],
-    ['p-customer','거래처'],['p-model','모델명'],['p-lot','LOT 번호'],
+    ['p-lot','LOT 번호'],
   ];
   for(const [id,label] of commonReq){
     if(!document.getElementById(id).value.trim()){
@@ -2320,13 +2720,11 @@ async function submitProduction() {
   }
   // 양산 포함 유형 필수항목 (양산만 / 셋팅+양산)
   if(inputType==='prod' || inputType==='setup_prod'){
-    // 양산만: 시작시간 필수
     if(inputType==='prod'){
       if(!document.getElementById('p-start').value.trim()){
         showToast('"시작 시간" 항목을 입력해 주세요.','error'); return;
       }
     }
-    // 셋팅+양산: 셋팅 시작/종료 필수
     if(inputType==='setup_prod'){
       if(!document.getElementById('p-setup-start').value.trim()){
         showToast('"셋팅 시작 시간" 항목을 입력해 주세요.','error'); return;
@@ -2335,26 +2733,28 @@ async function submitProduction() {
         showToast('"셋팅 종료 시간" 항목을 입력해 주세요.','error'); return;
       }
     }
-    const endFieldId = inputType === 'setup_prod' ? 'p-end-sp' : 'p-end';
-    if(!document.getElementById(endFieldId).value.trim()){
-      showToast('"퇴근 시간" 항목을 입력해 주세요.','error'); return;
+    if(!document.getElementById('p-end').value.trim()){
+      showToast('"작업 종료" 항목을 입력해 주세요.','error'); return;
     }
-    const ctFieldId = inputType === 'setup_prod' ? 'p-ct-sp' : 'p-ct';
-    if(!document.getElementById(ctFieldId).value.trim()){
+    if(!document.getElementById('p-ct').value.trim()){
       showToast('"싸이클타임" 항목을 입력해 주세요.','error'); return;
     }
     if(!(parseInt(document.getElementById('p-att-qty2').value)>0)){
       showToast('"유인 생산수량"을 입력해 주세요.','error'); return;
     }
   }
-  // 셋팅만 — 필수항목 없음 (기본정보만으로 저장 가능)
 
-  // 거래처/모델 확정 및 저장
+  // 제출 버튼 비활성화 (중복 클릭 방지)
+  const submitBtn = document.getElementById('submit-btn');
+  if(submitBtn) { submitBtn.disabled = true; submitBtn.textContent = '저장 중...'; }
+
+  // 거래처/모델 확정 및 저장 (hidden 필드 값 우선)
   const cm = resolveCustomerModel(
     'p-customer-select','p-customer-new','p-customer',
     'p-model-select','p-model-new','p-model'
   );
   if (!cm.ok) {
+    if(submitBtn) { submitBtn.disabled = false; submitBtn.textContent = '생산일지 제출'; }
     showToast('"거래처" 또는 "모델명"을 입력해 주세요.','error'); return;
   }
 
@@ -2371,46 +2771,50 @@ async function submitProduction() {
   const timeStr = pad(now.getHours())+':'+pad(now.getMinutes());
   const note          = document.getElementById('p-note') ? document.getElementById('p-note').value : '';
   const attDefectNote = document.getElementById('p-att-defect-note') ? document.getElementById('p-att-defect-note').value.trim() : '';
+  const planStart     = '';
+  const planEnd       = '';
+  const idleReason    = getIdleReason();
+  const setupDefect   = parseInt(document.getElementById('p-su-defect-total')?.value)||0;
 
-  // 셋업 불량 (셋팅만 / 셋팅+양산 공통)
-  const suD1 = parseInt(document.getElementById('p-su-d1').value)||0;
-  const suD2 = parseInt(document.getElementById('p-su-d2').value)||0;
-  const suD3 = parseInt(document.getElementById('p-su-d3').value)||0;
-  const suD4 = parseInt(document.getElementById('p-su-d4').value)||0;
-  const suD5 = parseInt(document.getElementById('p-su-d5').value)||0;
-  const setupDefect = suD1+suD2+suD3+suD4+suD5;
+  // 시간값 읽기
+  const setupStartT = document.getElementById('p-setup-start').value;
+  const setupEndT   = document.getElementById('p-setup-end').value;
+  const startT      = document.getElementById('p-start').value;    // 생산 시작
+  const endT        = document.getElementById('p-end').value;      // 생산 종료
+  const workStartT  = document.getElementById('p-work-start').value; // 조업 시작
+  const workEndT    = document.getElementById('p-work-end').value;   // 조업 종료 (무인 기준)
 
-  let lotData = { equipName, worker, lot, rawLot, process, customer, model, note, attDefectNote, inputType, date: workDate,
-    time: timeStr, unatt: false, setupDefect, suD1, suD2, suD3, suD4, suD5 };
+  // 유형 자동판단
+  const hasSetup = setupStartT && setupEndT;
+  const hasWork  = startT && endT;
+  if (!hasSetup && !hasWork && !idleReason) {
+    showToast('셋팅 시간 또는 생산 시간을 입력해 주세요.', 'error'); return;
+  }
+  if (hasSetup && hasWork) inputType = 'setup_prod';
+  else if (hasSetup)        inputType = 'setup';
+  else if (hasWork)         inputType = 'prod';
+  else                      inputType = 'idle';
+
+  let lotData = { equipName, worker, lot, rawLot, process, customer, model, note, attDefectNote,
+    inputType, date: workDate, time: timeStr, unatt: false,
+    setupDefect, planStart, planEnd, idleReason,
+    setupStartT, setupEndT,
+    workStartT, workEndT,
+    suD1:0, suD2:0, suD3:0, suD4:0, suD5:0 };
 
   if(inputType === 'prod' || inputType === 'setup_prod') {
-    const attQty  = parseInt(document.getElementById('p-att-qty2').value)||0;
-    const attD1   = parseInt(document.getElementById('p-att-d1').value)||0;
-    const attD2   = parseInt(document.getElementById('p-att-d2').value)||0;
-    const attD3   = parseInt(document.getElementById('p-att-d3').value)||0;
-    const attD4   = parseInt(document.getElementById('p-att-d4').value)||0;
-    const attD5   = parseInt(document.getElementById('p-att-d5').value)||0;
-    const attD6   = parseInt(document.getElementById('p-att-d6')?.value)||0;
+    const attQty    = parseInt(document.getElementById('p-att-qty2').value)||0;
+    const attD1     = parseInt(document.getElementById('p-att-d1').value)||0;
+    const attD2     = parseInt(document.getElementById('p-att-d2').value)||0;
+    const attD3     = parseInt(document.getElementById('p-att-d3').value)||0;
+    const attD4     = parseInt(document.getElementById('p-att-d4').value)||0;
+    const attD5     = parseInt(document.getElementById('p-att-d5').value)||0;
+    const attD6     = parseInt(document.getElementById('p-att-d6')?.value)||0;
     const attD6Note = (document.getElementById('p-att-d6-note')?.value||'').trim();
-    const defect  = attD1+attD2+attD3+attD4+attD5+attD6;
-    const ct      = parseFloat(document.getElementById(inputType === 'setup_prod' ? 'p-ct-sp' : 'p-ct').value)||0;
-    // 셋팅+양산은 p-end-sp, 양산만은 p-end
-    const endT    = inputType === 'setup_prod'
-      ? document.getElementById('p-end-sp').value
-      : document.getElementById('p-end').value;
+    const defect    = attD1+attD2+attD3+attD4+attD5+attD6;
+    const ct        = parseFloat(document.getElementById('p-ct').value)||0;
 
-    // 셋팅+양산: 셋팅 시간 별도 저장, 양산 시작 = 셋팅 종료
-    let setupStartT='', setupEndT='', startT='';
-    if (inputType === 'setup_prod') {
-      setupStartT = document.getElementById('p-setup-start').value;
-      setupEndT   = document.getElementById('p-setup-end').value;
-      startT      = setupEndT; // 양산 시작 = 셋팅 종료
-    } else {
-      startT = document.getElementById('p-start').value;
-    }
-
-    let workTimeStr='', workMins=0, theoryCT=0, perfRate=0;
-    let setupMins=0, setupTimeStr='';
+    let workMins=0, workTimeStr='', theoryCT=0, perfRate=0;
     if(startT && endT){
       const [sh,sm]=startT.split(':').map(Number),[eh,em]=endT.split(':').map(Number);
       workMins=(eh*60+em)-(sh*60+sm); if(workMins<0) workMins+=1440;
@@ -2418,28 +2822,40 @@ async function submitProduction() {
       if(attQty>0) theoryCT=parseFloat((workMins*60/attQty).toFixed(1));
       if(ct>0&&theoryCT>0) perfRate=parseFloat(Math.min(100,ct/theoryCT*100).toFixed(1));
     }
-    if(inputType==='setup_prod' && setupStartT && setupEndT){
+    let setupMins=0, setupTimeStr='';
+    if(setupStartT && setupEndT){
       const [sh,sm]=setupStartT.split(':').map(Number),[eh,em]=setupEndT.split(':').map(Number);
       setupMins=(eh*60+em)-(sh*60+sm); if(setupMins<0) setupMins+=1440;
       setupTimeStr=Math.floor(setupMins/60)+'시간 '+(setupMins%60)+'분';
     }
-    const goodQty  = Math.max(0, attQty-defect);
-    const qualRate = attQty>0 ? parseFloat((goodQty/attQty*100).toFixed(1)) : 0;
+    const goodQty   = Math.max(0, attQty-defect);
+    const qualRate  = attQty>0 ? parseFloat((goodQty/attQty*100).toFixed(1)) : 0;
+    const activeMins= workMins + setupMins;
+    const availRate = parseFloat((activeMins/1440*100).toFixed(1));
     Object.assign(lotData, {
       attQty, attD1, attD2, attD3, attD4, attD5, attD6, attD6Note,
-      defect, goodQty,
-      unattQty:0, ct, theoryCT, workMins, perfRate, qualRate,
-      startT, endT, workTimeStr,
-      setupStartT, setupEndT, setupMins, setupTimeStr,
+      defect, goodQty, unattQty:0, ct, theoryCT, workMins, perfRate, qualRate,
+      startT, endT, workTimeStr, setupMins, setupTimeStr, availRate,
+      unattStartInput: document.getElementById('p-unatt-start-time')?.value || '',
       unatt: unattOn
     });
   } else {
-    // 셋팅만 — 생산 수량 없음
+    // 셋팅만 / 비가동
+    let setupMins=0, setupTimeStr='';
+    if(setupStartT && setupEndT){
+      const [sh,sm]=setupStartT.split(':').map(Number),[eh,em]=setupEndT.split(':').map(Number);
+      setupMins=(eh*60+em)-(sh*60+sm); if(setupMins<0) setupMins+=1440;
+      setupTimeStr=Math.floor(setupMins/60)+'시간 '+(setupMins%60)+'분';
+    }
+    const availRate = parseFloat((setupMins/1440*100).toFixed(1));
+    const unattCt   = parseFloat(document.getElementById('p-unatt-ct')?.value)||0;
     Object.assign(lotData, {
-      attQty:0, attD1:0, attD2:0, attD3:0, attD4:0, attD5:0,
+      attQty:0, attD1:0, attD2:0, attD3:0, attD4:0, attD5:0, attD6:0, attD6Note:'',
       defect:0, goodQty:0, unattQty:0,
-      ct:'', theoryCT:0, workMins:0, perfRate:0, qualRate:0,
-      startT:'', endT:'', workTimeStr:'', unatt:false
+      ct: unattCt || '', theoryCT:0, workMins:0, perfRate:0, qualRate:0,
+      startT, endT:'', workTimeStr:'', setupMins, setupTimeStr, availRate,
+      unattStartInput: document.getElementById('p-unatt-start-time')?.value || '',
+      unatt: unattOn
     });
   }
   // DB 저장 + localStorage 백업
@@ -2450,6 +2866,8 @@ async function submitProduction() {
   } else {
     showToast('DB 저장 실패 — 로컬에만 저장됩니다.', 'error');
   }
+  // 제출 버튼 복구
+  if(submitBtn) { submitBtn.disabled = false; submitBtn.textContent = '생산일지 제출'; }
   todayLots.push(lotData);
   lsSave(LS_PROD, todayLots);
   SAMPLE_PROD.length = 0;
@@ -2461,13 +2879,15 @@ async function submitProduction() {
   filterRecords();
 }
 function showInputForm() {
-  document.getElementById('input-form').style.display = 'block';
+  // 수정 모드 중에는 절대 폼을 초기화하지 않음
+  if (editingRecord) return;
   ['p-lot','p-raw-lot','p-att-qty2',
    'p-att-d1','p-att-d2','p-att-d3','p-att-d4','p-att-d5','p-att-d6','p-att-d6-note',
-   'p-att-defect-total','p-good-qty','p-note','p-ct','p-ct-sp',
-   'p-att-defect-note',
-   'p-su-d1','p-su-d2','p-su-d3','p-su-d4','p-su-d5','p-su-defect-total',
-   'p-start','p-end','p-end-sp','p-setup-start','p-setup-end'
+   'p-att-defect-total','p-good-qty','p-note','p-ct','p-unatt-ct','p-unatt-start-time',
+   'p-att-defect-note','p-su-defect-total',
+   'p-work-start','p-work-end',
+   'p-setup-start','p-setup-end','p-start','p-end',
+   'idle-custom-text'
   ].forEach(id=>{
     const el = document.getElementById(id);
     if(el) el.value='';
@@ -2477,8 +2897,6 @@ function showInputForm() {
   if(pd) pd.textContent='셋팅 종료 입력 필요';
   const sb = document.getElementById('setup-time-box');
   if(sb) sb.style.display='none';
-  const cb = document.getElementById('ct-calc-box-sp');
-  if(cb) cb.style.display='none';
   // 거래처/모델 드롭다운 초기화
   renderCustomerSelect('p-customer-select','p-customer-new');
   document.getElementById('p-customer-new').style.display = 'none';
@@ -2488,7 +2906,27 @@ function showInputForm() {
   document.getElementById('p-model-new').style.display = 'none';
   document.getElementById('p-model-new').value = '';
   document.getElementById('p-model').value = '';
-  switchInputType('prod');
+  const ob = document.getElementById('oee-calc-box');
+  if(ob) ob.style.display='none';
+  const ar = document.getElementById('time-auto-result');
+  if(ar) ar.style.display='none';
+  // 작업지시 안내 박스 초기화
+  const wb = document.getElementById('wo-match-box');
+  if(wb) wb.style.display='none';
+  // 섹션 초기상태 — 시간 입력 전까지 생산실적/셋업불량 숨김
+  document.getElementById('prod-section').style.display  = 'none';
+  document.getElementById('setup-section').style.display = 'none';
+  document.getElementById('unatt-section').style.display = 'none';
+  // 비가동 사유 초기화
+  const noneRadio = document.querySelector('input[name="idle-reason"][value=""]');
+  if(noneRadio) noneRadio.checked = true;
+  document.getElementById('idle-custom-wrap').style.display = 'none';
+  if(document.getElementById('idle-custom-text')) document.getElementById('idle-custom-text').value='';
+  inputType = 'prod';
+  // 수정모드 버튼 텍스트 원복 (이중 안전장치)
+  const submitBtn = document.getElementById('submit-btn');
+  if(submitBtn) submitBtn.textContent = '생산일지 제출';
+  editingRecord = null;
   setUnatt(false);
   window.scrollTo(0, document.getElementById('input-form').offsetTop - 60);
 }
@@ -2609,20 +3047,26 @@ function resolveCustomerModel(customerSelId, customerNewId, customerHidId,
   const mNew = document.getElementById(modelNewId);
   const mHid = document.getElementById(modelHidId);
 
-  // 거래처 확정
-  let customer = '';
-  if (cSel.value === '__new__' || cSel.value === '') {
-    customer = cNew.value.trim();
-  } else {
-    customer = cSel.value;
+  // 거래처 확정 — hidden 값 우선, 없으면 신규입력, 없으면 드롭다운
+  let customer = cHid.value.trim();
+  if (!customer) {
+    if (cNew && cNew.style.display !== 'none' && cNew.value.trim()) {
+      customer = cNew.value.trim();
+    } else if (cSel.value && cSel.value !== '__new__') {
+      customer = cSel.value;
+    }
   }
-  // 모델명 확정 (대문자)
-  let model = '';
-  if (mSel.value === '__new__' || mSel.value === '') {
-    model = (mNew.value || '').trim().toUpperCase();
-  } else {
-    model = mSel.value.toUpperCase();
+
+  // 모델명 확정 — hidden 값 우선, 없으면 신규입력, 없으면 드롭다운
+  let model = mHid.value.trim().toUpperCase();
+  if (!model) {
+    if (mNew && mNew.style.display !== 'none' && mNew.value.trim()) {
+      model = mNew.value.trim().toUpperCase();
+    } else if (mSel.value && mSel.value !== '__new__') {
+      model = mSel.value.toUpperCase();
+    }
   }
+
   if (!customer || !model) return { customer, model, ok: false };
 
   // 신규 거래처 저장
@@ -2673,6 +3117,545 @@ function onUaModelSelect() {
   } else { newEl.style.display = 'none'; hidden.value = ''; }
 }
 // timeStr(HH:MM) → 분 변환
+// ── 시간 입력 자동판단 ───────────────────────────────────
+const EQUIP_BASE = 9 * 60; // 설비 기준 09:00
+
+function toMins24(t) {
+  if (!t) return null;
+  const [h, m] = t.split(':').map(Number);
+  let mins = h * 60 + m;
+  if (mins < EQUIP_BASE) mins += 1440;
+  return mins;
+}
+
+function fmtMins(m) {
+  const h = Math.floor(Math.abs(m) / 60);
+  const min = Math.abs(m) % 60;
+  return h > 0 ? `${h}시간 ${min > 0 ? min+'분' : ''}` : `${min}분`;
+}
+
+function onTimeInput() {
+  const wS = document.getElementById('p-work-start').value;
+  const wE = document.getElementById('p-work-end').value;
+  const ss = document.getElementById('p-setup-start').value;
+  const se = document.getElementById('p-setup-end').value;
+  const ps = document.getElementById('p-start').value;
+  const pe = document.getElementById('p-end').value;
+
+  const hasWork  = ps && pe;
+  const hasSetup = ss && se;
+
+  document.getElementById('ct-section').style.display = hasWork ? 'block' : 'none';
+  if (hasWork) calcCT();
+
+  autoDetectType(hasSetup, hasWork, ss, se, ps, pe, wS, wE);
+}
+
+function autoDetectType(hasSetup, hasWork, ss, se, ps, pe, wS, wE) {
+  const result   = document.getElementById('time-auto-result');
+  const process  = (document.getElementById('p-equip').value||'').split('|')[0];
+  const hasEquip = HAS_UNATT.includes(process);
+
+  let type = '';
+  if (hasSetup && hasWork) type = 'setup_prod';
+  else if (hasSetup)        type = 'setup';
+  else if (hasWork)         type = 'prod';
+  else                      type = 'idle';
+  inputType = type;
+
+  const isProd = type==='prod', isSetupProd = type==='setup_prod', isSetup = type==='setup';
+  document.getElementById('prod-section').style.display  = (isProd||isSetupProd) ? 'block' : 'none';
+  document.getElementById('setup-section').style.display = (isSetup||isSetupProd) ? 'block' : 'none';
+  const unattEl = document.getElementById('unatt-section');
+  if(unattEl) unattEl.style.display = hasEquip && type !== 'idle' ? 'block' : 'none';
+  if (type === 'idle') setUnatt(false);
+
+  let setupMins=0, prodMins=0, workTotalMins=0, idleMins=0;
+  if (hasSetup) { const ssM=toMins24(ss),seM=toMins24(se); setupMins=seM-ssM; if(setupMins<0)setupMins+=1440; }
+  if (hasWork)  { const psM=toMins24(ps),peM=toMins24(pe); prodMins=peM-psM;  if(prodMins<0)prodMins+=1440; }
+  if (wS && wE) {
+    const wsM=toMins24(wS),weM=toMins24(wE);
+    workTotalMins=weM-wsM; if(workTotalMins<0)workTotalMins+=1440;
+    idleMins=Math.max(0, workTotalMins-setupMins-prodMins);
+  }
+
+  const activeMins = setupMins + prodMins;
+  const availRate  = (activeMins/1440*100).toFixed(1);
+  const rateColor  = parseFloat(availRate)>=80?'var(--success)':parseFloat(availRate)>=50?'var(--warning)':'var(--danger)';
+  const typeLabel  = {prod:'양산만',setup_prod:'셋팅+양산',setup:'셋팅만',idle:'비가동'};
+
+  document.getElementById('auto-type-badge').textContent  = typeLabel[type]||'—';
+  const wtEl = document.getElementById('res-work-total');
+  if(wtEl) wtEl.textContent = workTotalMins>0 ? fmtMins(workTotalMins) : '—';
+  document.getElementById('res-setup-time').textContent   = setupMins>0 ? fmtMins(setupMins) : '—';
+  document.getElementById('res-work-time').textContent    = prodMins>0  ? fmtMins(prodMins)  : '—';
+  const idleEl = document.getElementById('res-idle-time');
+  if(idleEl) idleEl.textContent = idleMins>0 ? fmtMins(idleMins) : '—';
+  document.getElementById('res-avail-rate').textContent   = activeMins>0 ? availRate+'%' : '—';
+  document.getElementById('res-avail-rate').style.color   = rateColor;
+  result.style.display = (activeMins>0||workTotalMins>0) ? 'block' : 'none';
+
+  if (wS && wE) renderTimeline(wS, wE, ss, se, ps, pe);
+  else { const tw=document.getElementById('time-timeline-wrap'); if(tw) tw.style.display='none'; }
+}
+
+function renderTimeline(wS, wE, ss, se, ps, pe) {
+  const wrap    = document.getElementById('time-timeline-wrap');
+  const bar     = document.getElementById('time-timeline-bar');
+  const legend  = document.getElementById('time-timeline-legend');
+  const summary = document.getElementById('time-timeline-summary');
+  if (!wrap||!bar) return;
+
+  const wsM=toMins24(wS), weM=toMins24(wE);
+  let total=weM-wsM; if(total<=0)total+=1440;
+  if(total<=0){wrap.style.display='none';return;}
+
+  const pct = m => ((m/total)*100).toFixed(2)+'%';
+  const ssM=ss?toMins24(ss):null, seM=se?toMins24(se):null;
+  const psM=ps?toMins24(ps):null, peM=pe?toMins24(pe):null;
+
+  const segments=[];
+  let cursor=wsM;
+  if(ssM&&ssM>cursor){segments.push({label:'비가동',mins:ssM-cursor,color:'#d1d5db'});cursor=ssM;}
+  if(ssM&&seM){segments.push({label:'셋팅',mins:seM-ssM,color:'#f59e0b'});cursor=seM;}
+  if(psM&&psM>cursor){segments.push({label:'비가동',mins:psM-cursor,color:'#d1d5db'});cursor=psM;}
+  if(psM&&peM){segments.push({label:'생산',mins:peM-psM,color:'#2563eb'});cursor=peM;}
+  if(cursor<weM){segments.push({label:'비가동',mins:weM-cursor,color:'#d1d5db'});}
+
+  bar.innerHTML = segments.map(s=>{
+    const isIdle = s.label==='비가동';
+    return `<div style="width:${pct(s.mins)};background:${s.color};display:flex;align-items:center;justify-content:center;min-width:2px;" title="${s.label} ${fmtMins(s.mins)}">
+      ${s.mins>total*0.1?`<span style="font-size:9px;font-weight:700;color:${isIdle?'#6b7280':'#fff'};white-space:nowrap;">${fmtMins(s.mins)}</span>`:''}
+    </div>`;
+  }).join('');
+
+  const colMap={'비가동':'#d1d5db','셋팅':'#f59e0b','생산':'#2563eb'};
+  legend.innerHTML=Object.entries(colMap).filter(([k])=>segments.some(s=>s.label===k))
+    .map(([k,c])=>`<span style="display:flex;align-items:center;gap:3px;"><span style="width:10px;height:10px;border-radius:2px;background:${c};display:inline-block;"></span>${k}</span>`).join('');
+
+  const tSetup=segments.filter(s=>s.label==='셋팅').reduce((a,s)=>a+s.mins,0);
+  const tProd =segments.filter(s=>s.label==='생산').reduce((a,s)=>a+s.mins,0);
+  const tIdle =segments.filter(s=>s.label==='비가동').reduce((a,s)=>a+s.mins,0);
+  summary.innerHTML=[
+    `⏱️ 조업: ${wS} ~ ${wE} (${fmtMins(total)})`,
+    tSetup>0?`🔧 셋팅: ${fmtMins(tSetup)}`:'',
+    tProd>0?`⚙️ 생산: ${fmtMins(tProd)}`:'',
+    tIdle>0?`⛔ 비가동: ${fmtMins(tIdle)}`:'',
+  ].filter(Boolean).join('<br>');
+  wrap.style.display='block';
+}
+
+
+function onIdleReasonChange() {
+  const val = document.querySelector('input[name="idle-reason"]:checked')?.value;
+  document.getElementById('idle-custom-wrap').style.display = val === '__custom__' ? 'block' : 'none';
+}
+
+function getIdleReason() {
+  const val = document.querySelector('input[name="idle-reason"]:checked')?.value || '';
+  if (val === '__custom__') return document.getElementById('idle-custom-text').value.trim();
+  return val;
+}
+const WORKER_PLAN = {
+  '조명준': { start:'09:00', end:'18:00' },
+  '김용민': { start:'09:00', end:'18:00' },
+  '한유빈': { start:'07:00', end:'16:00' },
+  '조혜남': { start:'10:00', end:'19:00' },
+  '조재성': { start:'18:00', end:'03:00' },
+  '이승현': null,
+  '조아라':  null,
+  '김수진': null, '김봉자': null, '박주하': null,
+};
+const NO_PLAN_PROCESS = ['페인팅', '마킹'];
+
+// ── 작업지시 관리 ───────────────────────────────────────
+const LS_WORK_ORDERS = 'mes_work_orders';
+function loadWorkOrders() { try { return JSON.parse(localStorage.getItem(LS_WORK_ORDERS)||'[]'); } catch(e){ return []; } }
+function saveWorkOrders(data) { localStorage.setItem(LS_WORK_ORDERS, JSON.stringify(data)); }
+
+function renderWorkorderList() {
+  const orders = loadWorkOrders();
+  const listEl = document.getElementById('workorder-list');
+  if (!listEl) return;
+  if (!orders.length) {
+    listEl.innerHTML = '<div class="empty" style="padding:20px 0;"><div class="empty-icon">📋</div>등록된 작업지시가 없습니다.</div>';
+    return;
+  }
+  listEl.innerHTML = orders.map(o => {
+    const lotRecs   = todayLots.filter(l => l.lot === o.lot);
+    const totalGood = lotRecs.reduce((s,l) =>
+      s+Math.max(0,(l.attQty||0)-(l.defect||0))+Math.max(0,(l.unattQty||0)-(l.unattDefect||0)), 0);
+    const inspPassed= iLots.filter(l=>l.lot===o.lot).reduce((s,l)=>s+(l.good||0),0);
+    const remaining = Math.max(0, o.qty - inspPassed);
+    let status, sc;
+    if (inspPassed >= o.qty)                              { status='✅ 완료';        sc='var(--success)'; }
+    else if (iLots.some(l=>l.lot===o.lot) && inspPassed < o.qty) { status='🔴 추가생산필요'; sc='var(--danger)'; }
+    else if (totalGood >= o.qty)                          { status='🔔 검사대기';    sc='var(--warning)'; }
+    else                                                   { status='🔵 진행중';      sc='#2563eb'; }
+    return `<div style="display:flex;justify-content:space-between;align-items:center;padding:10px 0;border-bottom:1px solid var(--border);">
+      <div>
+        <div style="font-weight:700;font-size:13px;">${o.lot}</div>
+        <div style="font-size:11px;color:var(--text3);">${o.customer||'—'} · ${o.model||'—'}${o.date ? ` · 작업지시일 ${o.date}` : ''}</div>
+        <div style="font-size:11px;margin-top:2px;">
+          ${o.process ? `<span style="display:inline-block;background:var(--accent-soft);color:var(--accent);border-radius:4px;padding:1px 7px;font-weight:600;margin-right:6px;">${o.process}</span>` : ''}
+          <span style="color:var(--text2);">지시 ${o.qty}ea</span>
+          <span style="color:var(--accent);margin-left:8px;">가공 ${totalGood}ea</span>
+          <span style="color:var(--success);margin-left:8px;">합격 ${inspPassed}ea</span>
+          ${remaining>0?`<span style="color:var(--danger);margin-left:8px;">잔여 ${remaining}ea</span>`:''}
+        </div>
+      </div>
+      <div style="display:flex;flex-direction:column;align-items:flex-end;gap:6px;">
+        <span style="font-size:11px;font-weight:700;color:${sc};">${status}</span>
+        <button onclick="editWorkOrder('${o.lot}')" style="font-size:10px;color:var(--accent);background:none;border:1px solid var(--accent);border-radius:4px;padding:2px 8px;cursor:pointer;">수정</button>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+// ── 작업지시 수정 상태 ──────────────────────────────────
+let editingWorkOrderLot = null; // 수정 중인 LOT 번호
+
+function editWorkOrder(lot) {
+  const orders = loadWorkOrders();
+  const o = orders.find(o => o.lot === lot);
+  if (!o) return;
+
+  editingWorkOrderLot = lot;
+
+  // 폼에 기존값 채우기
+  const lotEl = document.getElementById('wo-lot');
+  lotEl.value = o.lot;
+  lotEl.disabled = true;           // LOT번호는 수정 불가 (식별키)
+  lotEl.style.opacity = '0.55';
+  document.getElementById('wo-qty').value      = o.qty;
+  document.getElementById('wo-customer').value = o.customer || '';
+  document.getElementById('wo-model').value    = o.model    || '';
+  document.getElementById('wo-process').value  = o.process  || '';
+  document.getElementById('wo-date').value     = o.date     || '';
+
+  // UI 수정모드로 전환
+  document.getElementById('wo-form-title').textContent = '✏️ 작업지시 수정';
+  document.getElementById('wo-edit-banner').style.display = 'flex';
+  document.getElementById('wo-submit-btn').textContent = '✅ 수정 저장';
+
+  // 폼 맨 위로 스크롤
+  document.getElementById('page-workorder').scrollTo(0, 0);
+  window.scrollTo(0, 0);
+  showToast('내용을 수정한 후 "수정 저장"을 눌러주세요.', 'info');
+}
+
+function cancelWorkOrderEdit() {
+  editingWorkOrderLot = null;
+  // 폼 초기화
+  ['wo-qty','wo-customer','wo-model'].forEach(id => {
+    const el = document.getElementById(id); if(el) el.value = '';
+  });
+  const lotEl = document.getElementById('wo-lot');
+  lotEl.value = ''; lotEl.disabled = false; lotEl.style.opacity = '';
+  document.getElementById('wo-process').value = '';
+  document.getElementById('wo-date').value    = '';
+  document.getElementById('wo-form-title').textContent = '📋 작업지시 등록';
+  document.getElementById('wo-edit-banner').style.display = 'none';
+  document.getElementById('wo-submit-btn').textContent = '작업지시 등록';
+}
+
+function saveWorkOrder() {
+  const lot      = document.getElementById('wo-lot').value.trim().toUpperCase();
+  const qty      = parseInt(document.getElementById('wo-qty').value)||0;
+  const customer = document.getElementById('wo-customer').value.trim();
+  const model    = document.getElementById('wo-model').value.trim().toUpperCase();
+  const process  = document.getElementById('wo-process').value;
+  const woDate   = document.getElementById('wo-date').value || '';  // 미입력 시 빈 문자열
+
+  if (!lot)     { showToast('LOT 번호를 입력해주세요.','error'); return; }
+  if (qty <= 0) { showToast('작업지시 수량을 입력해주세요.','error'); return; }
+  if (!process) { showToast('공정을 선택해주세요.','error'); return; }
+
+  const orders = loadWorkOrders();
+
+  if (editingWorkOrderLot) {
+    // ── 수정 모드 ──
+    const idx = orders.findIndex(o => o.lot === editingWorkOrderLot);
+    if (idx < 0) { showToast('수정 대상을 찾을 수 없습니다.','error'); return; }
+    orders[idx] = { ...orders[idx], qty, customer, model, process, date: woDate };
+    saveWorkOrders(orders);
+    showToast(`수정 완료: ${lot} · ${process} · ${qty}ea`, 'success');
+    cancelWorkOrderEdit();
+  } else {
+    // ── 신규 등록 ──
+    const idx = orders.findIndex(o => o.lot === lot);
+    if (idx >= 0) {
+      if (!confirm(`LOT ${lot} 작업지시가 이미 있습니다. 수정하려면 목록의 수정 버튼을 이용해주세요.`)) return;
+      return;
+    }
+    orders.push({ lot, qty, customer, model, process, date: woDate });
+    saveWorkOrders(orders);
+    ['wo-lot','wo-qty','wo-customer','wo-model','wo-date'].forEach(id => {
+      const el = document.getElementById(id); if(el) el.value = '';
+    });
+    document.getElementById('wo-process').value = '';
+    showToast(`작업지시 등록: ${lot} · ${process} · ${qty}ea`, 'success');
+  }
+
+  renderLotStatus();
+  renderWorkorderList();
+}
+
+function renderLotStatus() {
+  const orders = loadWorkOrders();
+  const activeEl = document.getElementById('lot-list-active');
+  const doneEl   = document.getElementById('lot-list-done');
+  if (!activeEl || !doneEl) return;
+
+  if (!orders.length) {
+    activeEl.innerHTML = '<div class="empty" style="padding:24px 0;"><div class="empty-icon">📊</div>작업지시를 등록하면 현황이 표시됩니다.<br><span style="font-size:11px;color:var(--text3);">작업지시 탭에서 먼저 등록해주세요.</span></div>';
+    doneEl.innerHTML   = '<div class="empty" style="padding:24px 0;"><div class="empty-icon">✅</div>완료된 작업지시가 없습니다.</div>';
+    const activeCnt = document.getElementById('lot-tab-active-cnt');
+    const doneCnt   = document.getElementById('lot-tab-done-cnt');
+    if(activeCnt) activeCnt.textContent = 0;
+    if(doneCnt)   doneCnt.textContent   = 0;
+    return;
+  }
+
+  // 각 작업지시 데이터 계산
+  const computed = orders.map(o => {
+    const lotRecs   = todayLots.filter(l => l.lot === o.lot);
+    const attGood   = lotRecs.reduce((s,l) => s+Math.max(0,(l.attQty||0)-(l.defect||0)), 0);
+    const unattGood = lotRecs.reduce((s,l) => s+Math.max(0,(l.unattQty||0)-(l.unattDefect||0)), 0);
+    const totalGood = attGood + unattGood;
+    const setupDef  = lotRecs.reduce((s,l) => s+(l.setupDefect||0), 0);
+    const inspRecs  = iLots.filter(l => l.lot === o.lot);
+    const inspPassed= inspRecs.reduce((s,l) => s+(l.good||0), 0);
+    const inspFailed= inspRecs.reduce((s,l) => s+(l.defect||0), 0);
+    const dates = lotRecs.map(l=>l.date).filter(Boolean).sort();
+    const dateRange = dates.length ? `${dates[0]}${dates.length>1?' ~ '+dates[dates.length-1]:''}` : '—';
+
+    let statusKey;
+    if (inspPassed >= o.qty)                              statusKey = 'done';
+    else if (inspRecs.length > 0 && inspPassed < o.qty)   statusKey = 'more';
+    else if (totalGood >= o.qty)                          statusKey = 'inspect';
+    else                                                   statusKey = 'progress';
+
+    return { o, totalGood, setupDef, inspRecs, inspPassed, inspFailed, dateRange, statusKey };
+  });
+
+  // 완료/미완료 분리
+  const incomplete = computed.filter(c => c.statusKey !== 'done');
+  const complete   = computed.filter(c => c.statusKey === 'done');
+
+  function makeCard(c) {
+    const { o, totalGood, setupDef, inspRecs, inspPassed, inspFailed, dateRange, statusKey } = c;
+
+    // 상태별 설정
+    const statusMap = {
+      progress: { label:'🔵 진행중',      color:'#2563eb',          msg:`작업지시 ${o.qty}ea 중 가공양품 ${totalGood}ea 완료 — 진행중` },
+      inspect:  { label:'🔔 검사대기',    color:'var(--warning)',   msg:`가공양품 ${totalGood}ea — 검사 대기중` },
+      more:     { label:'🔴 추가생산필요', color:'var(--danger)',    msg:`검사합격 ${inspPassed}ea — ${o.qty-inspPassed}ea 추가 생산 필요` },
+      done:     { label:'✅ 완료',         color:'var(--success)',   msg:`작업지시 ${o.qty}ea 전량 검사 합격 완료` },
+    };
+    const st = statusMap[statusKey];
+
+    // 3번째 수치칸: 상태에 따라 다르게
+    let col3Label, col3Val, col3Color;
+    if (statusKey === 'done') {
+      col3Label = '검사합격'; col3Val = inspPassed; col3Color = 'var(--success)';
+    } else if (statusKey === 'more') {
+      col3Label = '검사합격'; col3Val = inspPassed; col3Color = 'var(--danger)';
+    } else if (statusKey === 'inspect') {
+      col3Label = '검사대기'; col3Val = totalGood; col3Color = 'var(--warning)';
+    } else {
+      col3Label = '검사대기'; col3Val = totalGood; col3Color = 'var(--text3)';
+    }
+
+    // 4번째 수치칸: 상태 설명
+    const col4Map = {
+      progress: { label:'작지 미완료', val: '진행중',   color:'#2563eb' },
+      inspect:  { label:'작지 미완료', val: '검사필요',  color:'var(--warning)' },
+      more:     { label:'작지 미완료', val: '추가생산',  color:'var(--danger)' },
+      done:     { label:'작지 완료',   val: '완료',      color:'var(--success)' },
+    };
+    const col4 = col4Map[statusKey];
+
+    const machPct = Math.min(100, Math.round(totalGood/o.qty*100));
+    const inspPct = Math.min(100, Math.round(inspPassed/o.qty*100));
+
+    return `<div class="card" style="border-left:3px solid ${st.color};margin-bottom:10px;">
+      <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:8px;">
+        <div>
+          <div style="font-size:11px;color:var(--text3);">${o.customer||'—'} · ${o.model||'—'}</div>
+          <div style="display:flex;align-items:center;gap:6px;margin-top:2px;">
+            <span style="font-weight:700;font-size:14px;">${o.lot}</span>
+            ${o.process ? `<span style="font-size:11px;font-weight:600;background:var(--accent-soft);color:var(--accent);border-radius:4px;padding:1px 8px;">${o.process}</span>` : ''}
+          </div>
+          ${o.date ? `<div style="font-size:11px;color:var(--text3);margin-top:2px;">📅 작업지시일 ${o.date}</div>` : ''}
+        </div>
+        <div style="text-align:right;">
+          <span style="font-size:12px;font-weight:700;color:${st.color};">${st.label}</span>
+        </div>
+      </div>
+
+      <!-- 수치 4칸 -->
+      <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:6px;text-align:center;margin-bottom:10px;">
+        <div style="background:var(--bg3);border-radius:6px;padding:8px 4px;">
+          <div style="font-size:10px;color:var(--text3);">작업지시</div>
+          <div style="font-weight:700;font-size:15px;">${o.qty}</div>
+          <div style="font-size:10px;color:var(--text3);">ea</div>
+        </div>
+        <div style="background:var(--bg3);border-radius:6px;padding:8px 4px;">
+          <div style="font-size:10px;color:var(--accent);">가공양품</div>
+          <div style="font-weight:700;font-size:15px;color:var(--accent);">${totalGood}</div>
+          <div style="font-size:10px;color:var(--text3);">ea</div>
+        </div>
+        <div style="background:var(--bg3);border-radius:6px;padding:8px 4px;">
+          <div style="font-size:10px;color:${col3Color};">${col3Label}</div>
+          <div style="font-weight:700;font-size:15px;color:${col3Color};">${col3Val}</div>
+          <div style="font-size:10px;color:var(--text3);">ea</div>
+        </div>
+        <div style="background:var(--bg3);border-radius:6px;padding:8px 4px;">
+          <div style="font-size:10px;color:${col4.color};">${col4.label}</div>
+          <div style="font-weight:700;font-size:13px;color:${col4.color};">${col4.val}</div>
+        </div>
+      </div>
+
+      <!-- 상태 설명 문장 -->
+      <div style="font-size:11px;color:${st.color};background:${statusKey==='done'?'var(--success-bg)':statusKey==='inspect'?'var(--warning-bg)':statusKey==='more'?'var(--danger-bg)':'var(--accent-soft)'};border-radius:var(--radius-sm);padding:6px 10px;margin-bottom:8px;">
+        ${st.msg}
+      </div>
+
+      <!-- 진행률 바 -->
+      <div style="margin-bottom:5px;">
+        <div style="display:flex;justify-content:space-between;font-size:10px;color:var(--text3);margin-bottom:2px;"><span>가공 진행률</span><span>${machPct}%</span></div>
+        <div style="background:var(--bg3);border-radius:4px;height:6px;overflow:hidden;"><div style="width:${machPct}%;background:var(--accent);height:100%;border-radius:4px;"></div></div>
+      </div>
+      <div style="margin-bottom:8px;">
+        <div style="display:flex;justify-content:space-between;font-size:10px;color:var(--text3);margin-bottom:2px;"><span>검사 합격률</span><span>${inspPct}%</span></div>
+        <div style="background:var(--bg3);border-radius:4px;height:6px;overflow:hidden;"><div style="width:${inspPct}%;background:var(--success);height:100%;border-radius:4px;"></div></div>
+      </div>
+
+      ${setupDef>0?`<div style="font-size:11px;color:var(--warning);margin-bottom:3px;">⚠️ 셋업불량 ${setupDef}ea</div>`:''}
+      ${inspFailed>0?`<div style="font-size:11px;color:var(--danger);margin-bottom:3px;">❌ 검사불량 ${inspFailed}ea</div>`:''}
+      ${inspRecs.length>0?`
+        <div style="margin-top:8px;padding-top:8px;border-top:1px dashed var(--border);">
+          <div style="font-size:11px;font-weight:600;color:var(--text3);margin-bottom:4px;">📋 검사 이력</div>
+          ${inspRecs.map(r=>`<div style="font-size:11px;display:flex;justify-content:space-between;padding:3px 0;border-bottom:1px solid var(--bg3);">
+            <span>${r.date||'-'} · ${r.process||'-'} · ${r.worker||'-'}</span>
+            <span>검사 ${r.prod||0}ea → 합격 <b style="color:var(--success);">${r.good||0}ea</b>${(r.defect||0)>0?` 불량 <b style="color:var(--danger);">${r.defect}ea</b>`:''}</span>
+          </div>`).join('')}
+        </div>`:''}
+    </div>`;
+  }
+
+  // 탭별 div에 렌더링
+  const activeCnt = document.getElementById('lot-tab-active-cnt');
+  const doneCnt   = document.getElementById('lot-tab-done-cnt');
+
+  // 카운트 업데이트
+  if (activeCnt) activeCnt.textContent = incomplete.length;
+  if (doneCnt)   doneCnt.textContent   = complete.length;
+
+  // 진행중 탭 내용
+  activeEl.innerHTML = incomplete.length
+    ? incomplete.map(makeCard).join('')
+    : '<div class="empty" style="padding:24px 0;"><div class="empty-icon">🎉</div>진행중인 작업지시가 없습니다.</div>';
+
+  // 완료 탭 내용
+  doneEl.innerHTML = complete.length
+    ? complete.map(makeCard).join('')
+    : '<div class="empty" style="padding:24px 0;"><div class="empty-icon">✅</div>완료된 작업지시가 없습니다.</div>';
+
+  // 현재 탭 유지 (전환 후에도 탭 상태 보존)
+  const currentTab = window._lotCurrentTab || 'active';
+  switchLotTab(currentTab, document.getElementById(`lot-tab-btn-${currentTab}`), true);
+}
+
+// ── LOT현황 탭 전환 ──────────────────────────────────────
+function switchLotTab(tab, btn, silent) {
+  window._lotCurrentTab = tab;
+  const activeEl = document.getElementById('lot-list-active');
+  const doneEl   = document.getElementById('lot-list-done');
+  const activeBtn = document.getElementById('lot-tab-btn-active');
+  const doneBtn   = document.getElementById('lot-tab-btn-done');
+  if (!activeEl || !doneEl) return;
+
+  // 탭 콘텐츠 전환
+  activeEl.style.display = tab === 'active' ? 'block' : 'none';
+  doneEl.style.display   = tab === 'done'   ? 'block' : 'none';
+
+  // 탭 버튼 스타일 전환
+  if (activeBtn) {
+    if (tab === 'active') {
+      activeBtn.style.borderColor = 'var(--accent)';
+      activeBtn.style.background  = 'var(--accent)';
+      activeBtn.style.color       = 'white';
+      const cnt = activeBtn.querySelector('span');
+      if(cnt) cnt.style.background = 'rgba(255,255,255,0.25)';
+    } else {
+      activeBtn.style.borderColor = 'var(--border)';
+      activeBtn.style.background  = 'var(--bg2)';
+      activeBtn.style.color       = 'var(--text3)';
+      const cnt = activeBtn.querySelector('span');
+      if(cnt) cnt.style.background = 'var(--bg3)';
+    }
+  }
+  if (doneBtn) {
+    if (tab === 'done') {
+      doneBtn.style.borderColor = 'var(--success)';
+      doneBtn.style.background  = 'var(--success)';
+      doneBtn.style.color       = 'white';
+      const cnt = doneBtn.querySelector('span');
+      if(cnt) cnt.style.background = 'rgba(255,255,255,0.25)';
+    } else {
+      doneBtn.style.borderColor = 'var(--border)';
+      doneBtn.style.background  = 'var(--bg2)';
+      doneBtn.style.color       = 'var(--text3)';
+      const cnt = doneBtn.querySelector('span');
+      if(cnt) cnt.style.background = 'var(--bg3)';
+    }
+  }
+}
+
+function renderInspectWaiting() {
+  const orders = loadWorkOrders();
+  const dotEl  = document.getElementById('inspect-dot');
+  const waiting = orders.filter(o => {
+    const totalGood = todayLots.filter(l=>l.lot===o.lot)
+      .reduce((s,l)=>s+Math.max(0,(l.attQty||0)-(l.defect||0))+Math.max(0,(l.unattQty||0)-(l.unattDefect||0)),0);
+    return totalGood >= o.qty && !iLots.some(l=>l.lot===o.lot);
+  });
+  if(dotEl) dotEl.classList.toggle('show', waiting.length>0);
+  const waitEl = document.getElementById('inspect-waiting-list');
+  if (!waitEl) return;
+  if (!waiting.length) { waitEl.style.display='none'; return; }
+  waitEl.style.display='block';
+  waitEl.innerHTML = `<div class="card" style="border-left:3px solid var(--warning);background:rgba(245,158,11,0.06);margin-bottom:10px;">
+    <div style="font-size:12px;font-weight:700;color:var(--warning);margin-bottom:8px;">🔔 검사 대기 ${waiting.length}건 — 가공 완료 LOT</div>
+    ${waiting.map(o=>{
+      const totalGood = todayLots.filter(l=>l.lot===o.lot)
+        .reduce((s,l)=>s+Math.max(0,(l.attQty||0)-(l.defect||0))+Math.max(0,(l.unattQty||0)-(l.unattDefect||0)),0);
+      return `<div style="display:flex;justify-content:space-between;align-items:center;padding:6px 0;border-bottom:1px solid var(--bg3);">
+        <div><div style="font-weight:600;font-size:12px;">${o.lot}</div>
+        <div style="font-size:11px;color:var(--text3);">${o.customer||''} · ${o.model||''}</div></div>
+        <div style="text-align:right;">
+          <div style="font-size:12px;color:var(--accent);">가공양품 ${totalGood}ea</div>
+          <div style="font-size:11px;color:var(--warning);">작업지시 ${o.qty}ea</div>
+        </div>
+      </div>`;
+    }).join('')}
+  </div>`;
+}
+
+function onWorkerChange() {
+  // 작업자 변경 시 추가 처리 필요시 여기 추가
+}
+
+function calcOEETime() {
+  // 현재 시간 입력은 onTimeInput에서 통합 처리
+}
+
+function calcSetupOnlyTime() {
+  // 통합 시간 입력으로 변경 — onTimeInput에서 처리
+}
+
 function timeToMins(t) {
   if (!t) return null;
   const [h,m] = t.split(':').map(Number);
@@ -2736,14 +3719,15 @@ function calcUnattEndTime() {
     document.getElementById('u-theory-end-box').style.display = 'none';
     return;
   }
-  const [selLot, selDate] = selUnattId.split('_');
+  const [selLot, selDate] = selUnattId.split('||');
   const lot = todayLots.find(l => l.lot === selLot && l.date === selDate && l.unatt);
-  if (!lot || !lot.ct || !lot.endT) {
+  // 무인 시작 = 직접입력 or 작업종료 or 셋팅종료
+  const startT = lot?.unattStartInput || lot?.endT || lot?.setupEndT || '';
+  if (!lot || !lot.ct || !startT) {
     document.getElementById('u-theory-end-box').style.display = 'none';
     return;
   }
   const ct       = parseFloat(lot.ct);
-  const startT   = lot.endT; // 무인 시작 = 퇴근시간
   _uStartMins    = timeToMins(startT);
   const addMins  = Math.round(ct * qty / 60);
   _uTheoryMins   = _uStartMins + addMins;
@@ -2784,10 +3768,15 @@ function onUnattEquipChange() {
   if (processEl) processEl.value = PROCESS_MAP[type] || '';
 }
 function switchUnattTab(tab) {
-  document.getElementById('unatt-tab-pending').classList.toggle('active', tab==='pending');
-  document.getElementById('unatt-tab-add').classList.toggle('active', tab==='add');
+  ['pending','edit','add'].forEach(t => {
+    const el = document.getElementById('unatt-tab-'+t);
+    if(el) el.classList.toggle('active', t===tab);
+  });
   document.getElementById('unatt-pending-section').style.display = tab==='pending' ? 'block' : 'none';
-  document.getElementById('unatt-add-section').style.display     = tab==='add'     ? 'block' : 'none';
+  const editSec = document.getElementById('unatt-edit-section');
+  if(editSec) editSec.style.display = tab==='edit' ? 'block' : 'none';
+  document.getElementById('unatt-add-section').style.display = tab==='add' ? 'block' : 'none';
+  if (tab==='edit') filterUnattEdit();
   if (tab === 'add') {
     const now = new Date(); const pad = n=>String(n).padStart(2,'0');
     document.getElementById('ua-date').value =
@@ -2800,7 +3789,60 @@ function switchUnattTab(tab) {
     document.getElementById('ua-model').value = '';
     document.getElementById('ua-worker').innerHTML = '<option value="">설비 먼저 선택</option>';
     document.getElementById('ua-process').value = '';
+    const uaWoBox = document.getElementById('ua-wo-match-box');
+    if (uaWoBox) uaWoBox.style.display = 'none';
   }
+}
+
+function filterUnattEdit() {
+  const lotQ  = (document.getElementById('unatt-edit-lot')?.value||'').toUpperCase().trim();
+  const dateQ = document.getElementById('unatt-edit-date')?.value||'';
+  const listEl = document.getElementById('unatt-edit-list');
+  if (!listEl) return;
+  if (!lotQ && !dateQ) {
+    listEl.innerHTML = '<div class="empty" style="padding:24px 0;"><div class="empty-icon">🔍</div>LOT번호 또는 날짜를 입력하세요.</div>';
+    return;
+  }
+  const results = todayLots.filter(l => {
+    if (!l.unatt || !l.unattDone) return false;
+    const lotMatch  = !lotQ  || (l.lot||'').toUpperCase().includes(lotQ);
+    const dateMatch = !dateQ || l.date === dateQ;
+    return lotMatch && dateMatch;
+  });
+  if (!results.length) {
+    listEl.innerHTML = '<div class="empty" style="padding:24px 0;"><div class="empty-icon">🔍</div>검색 결과가 없습니다.</div>';
+    return;
+  }
+  listEl.innerHTML = results.map(l => `
+    <div class="card" style="margin-bottom:8px;cursor:pointer;border:1px solid var(--border);"
+      onclick="selectUnattEdit('${l.lot}','${l.date}')">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px;">
+        <span style="font-weight:700;font-size:13px;">${l.equipName||'-'} · ${l.lot||'-'}</span>
+        <span class="badge badge-green">✅ 입력완료</span>
+      </div>
+      <div style="font-size:11px;color:var(--text3);">${l.customer||''} · ${l.model||''} · ${l.date||''}</div>
+      <div style="font-size:12px;margin-top:4px;">
+        <span class="chip chip-blue">유인 ${l.attQty||0}ea</span>
+        <span class="chip chip-green" style="margin-left:4px;">무인 ${l.unattQty||0}ea</span>
+      </div>
+    </div>`).join('');
+}
+
+function selectUnattEdit(lot, date) {
+  const rec = todayLots.find(l => l.lot===lot && l.date===date && l.unatt);
+  if (!rec) return;
+  // 미입력 탭으로 이동 후 해당 카드 자동 선택
+  switchUnattTab('pending');
+  // 임시로 unattDone 해제해서 선택 가능하게
+  rec._editMode = true;
+  rec.unattDone = false;
+  renderUnattList();
+  // 해당 카드 자동 선택
+  setTimeout(() => {
+    const card = document.getElementById(`ucard-${lot}||${date}`);
+    if (card) { card.click(); card.scrollIntoView({behavior:'smooth', block:'center'}); }
+  }, 100);
+  showToast('수정할 항목을 선택했습니다. 수량을 변경 후 재제출하세요.', 'info');
 }
 
 function calcUnattAdd() {
@@ -2865,7 +3907,7 @@ async function submitUnattAdd() {
     unattD1:uD1, unattD2:uD2, unattD3:uD3, unattD4:uD4, unattD5:uD5,
     unattD6:uD6, unattD6Note:uD6Note,
     unattDefect:  uDefect,
-    unattDefectNote: (document.getElementById('ua-defect-note').value||'').trim(),
+    unattDefectNote: (document.getElementById('ua-defect-note')?.value||'').trim(),
     unattDone:    true,
     unatt:        true,
     // 생산 관련 없음
@@ -2900,15 +3942,23 @@ function selectUnatt(card, id) {
   });
   card.style.borderColor='var(--accent)'; card.style.background='var(--accent-soft)';
   selUnattId = id;
-  // 이론종료 초기화 (수량 바뀌기 전 리셋)
   _uTheoryMins = null; _uStartMins = null;
   document.getElementById('u-theory-end-box').style.display='none';
-  document.getElementById('u-qty').value='';
-  // 선택한 LOT의 무인 시작시간(퇴근시간) 표시
-  const [selLot, selDate] = id.split('_');
+  // 기존 입력값 불러오기 (수정 시)
+  const [selLot, selDate] = id.split('||');
   const lot = todayLots.find(l => l.lot===selLot && l.date===selDate && l.unatt);
-  if (lot && lot.endT) {
-    document.getElementById('u-theory-end-box').style.display='none';
+  if (lot) {
+    document.getElementById('u-qty').value     = lot.unattQty > 0 ? lot.unattQty : '';
+    document.getElementById('u-d1').value      = lot.unattD1 || '';
+    document.getElementById('u-d2').value      = lot.unattD2 || '';
+    document.getElementById('u-d3').value      = lot.unattD3 || '';
+    document.getElementById('u-d4').value      = lot.unattD4 || '';
+    document.getElementById('u-d5').value      = lot.unattD5 || '';
+    document.getElementById('u-d6').value      = lot.unattD6 || '';
+    document.getElementById('u-d6-note').value = lot.unattD6Note || '';
+    document.getElementById('u-defect-total').value = lot.unattDefect || '';
+    // 수량이 있으면 이론종료 자동계산
+    if (lot.unattQty > 0) calcUnattEndTime();
   }
 }
 async function submitUnatt() {
@@ -2917,7 +3967,7 @@ async function submitUnatt() {
   if(!document.getElementById('u-qty').value){showToast('"무인 생산수량"을 입력해 주세요.','error');return;}
 
   // lot_date 복합키로 대상 찾기
-  const [selLot, selDate] = selUnattId.split('_');
+  const [selLot, selDate] = selUnattId.split('||');
   const uWorker  = document.getElementById('u-worker').value;
   const uQty     = parseInt(document.getElementById('u-qty').value)||0;
   const uD1      = parseInt(document.getElementById('u-d1').value)||0;
@@ -2978,48 +4028,134 @@ function selProcess(btn, proc) {
   document.querySelectorAll('.process-btn').forEach(b=>b.classList.remove('selected'));
   btn.classList.add('selected');
   selectedProcess = proc;
-  document.getElementById('i-custom-wrap').style.display = proc==='기타'?'block':'none';
+  const customWrap = document.getElementById('i-custom-wrap');
+  const customInput = document.getElementById('i-custom');
+  if (proc === '기타') {
+    customWrap.style.display = 'block';
+    if(customInput) { customInput.value = ''; customInput.focus(); }
+    selectedProcess = ''; // 직접입력 완료 시 oninput에서 갱신
+  } else {
+    customWrap.style.display = 'none';
+    if(customInput) customInput.value = '';
+  }
 }
+// ── 불량 행 데이터 (임시 저장) ─────────────────────────
+let inspDefectRows = [];
+let editingInspRecord = null; // 검사일지 수정 모드
+
 function calcInspect() {
-  const p=parseInt(document.getElementById('i-prod-qty').value)||0;
-  const g=parseInt(document.getElementById('i-good-qty').value)||0;
-  document.getElementById('i-defect-qty').value=Math.max(0,p-g);
+  const p = parseInt(document.getElementById('i-prod-qty').value)||0;
+  const g = parseInt(document.getElementById('i-good-qty').value)||0;
+  const defect = Math.max(0, p - g);
+  document.getElementById('i-defect-qty').value = defect;
+  const dispEl = document.getElementById('i-defect-display');
+  if (dispEl) {
+    dispEl.textContent = defect > 0 ? `${defect} ea` : '— ea';
+    dispEl.style.color = defect > 0 ? 'var(--danger)' : 'var(--text3)';
+  }
+}
+
+function onInspDefTypeChange() {
+  const sel = document.getElementById('i-def-type');
+  const wrap = document.getElementById('i-def-type-custom-wrap');
+  if (wrap) wrap.style.display = sel.value === '직접입력' ? 'block' : 'none';
+}
+
+function addInspDefectRow() {
+  const loc  = (document.getElementById('i-def-loc')?.value||'').trim();
+  const type = document.getElementById('i-def-type')?.value||'';
+  const custom = (document.getElementById('i-def-type-custom')?.value||'').trim();
+  const qty  = parseInt(document.getElementById('i-def-qty')?.value)||0;
+
+  const finalType = type === '직접입력' ? custom : type;
+
+  if (!loc)       { showToast('불량 부위를 입력해주세요.','error'); return; }
+  if (!finalType) { showToast('불량 종류를 선택해주세요.','error'); return; }
+  if (qty <= 0)   { showToast('수량을 입력해주세요.','error'); return; }
+
+  inspDefectRows.push({ loc, type: finalType, qty });
+  renderInspDefectList();
+
+  // 입력 초기화
+  document.getElementById('i-def-loc').value = '';
+  document.getElementById('i-def-type').value = '';
+  document.getElementById('i-def-type-custom').value = '';
+  document.getElementById('i-def-qty').value = '';
+  const wrap = document.getElementById('i-def-type-custom-wrap');
+  if (wrap) wrap.style.display = 'none';
+}
+
+function removeInspDefectRow(idx) {
+  inspDefectRows.splice(idx, 1);
+  renderInspDefectList();
+}
+
+function renderInspDefectList() {
+  const listEl = document.getElementById('i-defect-list');
+  const summEl = document.getElementById('i-defect-summary');
+  const totalEl = document.getElementById('i-defect-row-total');
+  if (!listEl) return;
+
+  if (!inspDefectRows.length) {
+    listEl.innerHTML = '';
+    if (summEl) summEl.style.display = 'none';
+    return;
+  }
+
+  const total = inspDefectRows.reduce((s,r) => s+r.qty, 0);
+
+  listEl.innerHTML = inspDefectRows.map((r,i) => `
+    <div style="display:flex;justify-content:space-between;align-items:center;padding:7px 10px;background:var(--bg3);border-radius:var(--radius-sm);margin-bottom:6px;">
+      <div style="font-size:12px;">
+        <span style="font-weight:600;color:var(--text2);">${r.loc}</span>
+        <span style="color:var(--text3);margin:0 6px;">·</span>
+        <span style="color:var(--danger);">${r.type}</span>
+        <span style="color:var(--text3);margin:0 6px;">·</span>
+        <span style="font-weight:700;">${r.qty}ea</span>
+      </div>
+      <button onclick="removeInspDefectRow(${i})"
+        style="background:none;border:1px solid var(--danger);color:var(--danger);border-radius:4px;font-size:10px;padding:2px 8px;cursor:pointer;">삭제</button>
+    </div>
+  `).join('');
+
+  if (summEl) { summEl.style.display = 'block'; }
+  if (totalEl) totalEl.textContent = total;
 }
 
 let iLots = lsLoad(LS_INSPECT);
-async function submitInspect() {
-  if(!selectedProcess){showToast('"검사 공정"을 선택해 주세요.','error');return;}
-  const req=[['i-date','검사 날짜'],['i-worker','검사원'],['i-customer','거래처'],
-    ['i-model','모델명'],['i-lot','LOT 번호'],['i-prod-qty','검사수'],['i-good-qty','양품수']];
-  for(const [id,label] of req){
-    if(!document.getElementById(id).value.trim()){showToast(`"${label}" 항목을 입력해 주세요.`,'error');return;}
+
+// ── 검사 hero 렌더링 (날짜 기준) ─────────────────────────
+function renderInspectHero(targetDate) {
+  const todayInsp = iLots.filter(l => l.date === targetDate);
+  if (todayInsp.length === 0) {
+    document.getElementById('inspect-hero').style.display = 'none';
+    document.getElementById('inspect-form').style.display = 'block';
+    return;
   }
-  const worker=document.getElementById('i-worker').value;
-  const lot=document.getElementById('i-lot').value;
-  const prod=parseInt(document.getElementById('i-prod-qty').value)||0;
-  const good=parseInt(document.getElementById('i-good-qty').value)||0;
-  const defect=prod-good;
-  const now=new Date(); const pad=n=>String(n).padStart(2,'0');
-
-  const inspDate = document.getElementById('i-date').value;
-  const inspRecord = {worker,lot,prod,good,defect,process:selectedProcess,date:inspDate,time:`${pad(now.getHours())}:${pad(now.getMinutes())}`};
-  iLots.push(inspRecord);
-  const insRes = await sbInsert('inspection_logs', inspToDb(inspRecord));
-  if (insRes && insRes[0]) inspRecord.id = insRes[0].id;
-  lsSave(LS_INSPECT, iLots);
-
-  document.getElementById('inspect-hero').style.display='block';
-  document.getElementById('inspect-form').style.display='none';
-  document.getElementById('i-hero-info').textContent=`검사원 ${worker}`;
-  document.getElementById('i-hero-prod').textContent=iLots.reduce((s,l)=>s+l.prod,0).toLocaleString();
-  document.getElementById('i-hero-good').textContent=iLots.reduce((s,l)=>s+l.good,0).toLocaleString();
-  document.getElementById('i-hero-defect').textContent=iLots.reduce((s,l)=>s+l.defect,0);
-
-  document.getElementById('i-lot-list').innerHTML=iLots.slice().reverse().map(l=>`
-    <div class="lot-card animate-in">
+  const last = todayInsp[todayInsp.length - 1];
+  document.getElementById('inspect-hero').style.display = 'block';
+  document.getElementById('inspect-form').style.display = 'none';
+  document.getElementById('i-hero-info').textContent = `검사원 ${last.worker}`;
+  document.getElementById('i-hero-prod').textContent   = todayInsp.reduce((s,l)=>s+(l.prod||0),0).toLocaleString();
+  document.getElementById('i-hero-good').textContent   = todayInsp.reduce((s,l)=>s+(l.good||0),0).toLocaleString();
+  document.getElementById('i-hero-defect').textContent = todayInsp.reduce((s,l)=>s+(l.defect||0),0);
+  document.getElementById('i-lot-list').innerHTML = todayInsp.slice().reverse().map((l, i) => {
+    const realIdx = iLots.indexOf(l);
+    const defectDetail = l.defects && l.defects.length
+      ? `<div style="margin-top:6px;padding:6px 8px;background:var(--bg3);border-radius:var(--radius-sm);">
+          ${l.defects.map(d=>`<span style="font-size:11px;color:var(--danger);margin-right:8px;">${d.loc} · ${d.type} ${d.qty}ea</span>`).join('')}
+         </div>` : '';
+    return `<div class="lot-card animate-in">
       <div class="lot-card-top">
-        <div class="lot-card-title">${l.lot} · ${l.process}</div>
-        <div class="lot-card-time">${l.time}</div>
+        <div>
+          <div class="lot-card-model">${l.customer||''} ${l.model ? '· '+l.model : ''}</div>
+          <div class="lot-card-title">${l.lot} · ${l.process}</div>
+        </div>
+        <div style="display:flex;align-items:center;gap:6px;">
+          <div class="lot-card-time">${l.time}</div>
+          <button onclick="editInspRecord(${realIdx})"
+            style="font-size:10px;color:var(--accent);background:none;border:1px solid var(--accent);border-radius:4px;padding:2px 8px;cursor:pointer;">수정</button>
+        </div>
       </div>
       <div class="lot-card-info">${l.worker}</div>
       <div class="chips">
@@ -3027,20 +4163,126 @@ async function submitInspect() {
         <span class="chip chip-green">양품 ${l.good}ea</span>
         ${l.defect>0?`<span class="chip chip-red">불량 ${l.defect}ea</span>`:''}
       </div>
-    </div>
-  `).join('');
-  showToast('검사일지가 제출되었습니다.','success');
+      ${defectDetail}
+    </div>`;
+  }).join('');
+}
+
+async function submitInspect() {
+  if(!selectedProcess){showToast('"검사 공정"을 선택해 주세요.','error');return;}
+  const req=[['i-date','검사 날짜'],['i-worker','검사원'],['i-customer','거래처'],
+    ['i-model','모델명'],['i-lot','LOT 번호'],['i-prod-qty','검사수'],['i-good-qty','양품수']];
+  for(const [id,label] of req){
+    if(!document.getElementById(id).value.trim()){showToast(`"${label}" 항목을 입력해 주세요.`,'error');return;}
+  }
+  const worker   = document.getElementById('i-worker').value;
+  const customer = document.getElementById('i-customer').value.trim();
+  const model    = document.getElementById('i-model').value.trim().toUpperCase();
+  const lot      = document.getElementById('i-lot').value.trim().toUpperCase();
+  const prod     = parseInt(document.getElementById('i-prod-qty').value)||0;
+  const good     = parseInt(document.getElementById('i-good-qty').value)||0;
+  const defect   = Math.max(0, prod - good);
+  const now = new Date();
+  const pad = n => String(n).padStart(2,'0');
+  const inspDate = document.getElementById('i-date').value;
+
+  const inspRecord = {
+    worker, customer, model, lot, prod, good, defect,
+    defects: [...inspDefectRows],   // 불량 상세 배열
+    process: selectedProcess, date: inspDate,
+    time: `${pad(now.getHours())}:${pad(now.getMinutes())}`
+  };
+
+  if (editingInspRecord) {
+    // ── 수정 모드 ──
+    const idx = iLots.findIndex(l => l === editingInspRecord);
+    if (idx >= 0) iLots[idx] = inspRecord;
+    editingInspRecord = null;
+    showToast('검사일지가 수정되었습니다.','success');
+  } else {
+    // ── 신규 등록 ──
+    iLots.push(inspRecord);
+    const insRes = await sbInsert('inspection_logs', inspToDb(inspRecord));
+    if (insRes && insRes[0]) inspRecord.id = insRes[0].id;
+    showToast('검사일지가 제출되었습니다.','success');
+  }
+  lsSave(LS_INSPECT, iLots);
+
+  renderInspectHero(inspDate);
+  renderInspectWaiting();
+  renderLotStatus();
   renderStatus();
   filterRecords();
 }
+
 function showInspectForm() {
   document.getElementById('inspect-form').style.display='block';
-  ['i-lot','i-prod-qty','i-good-qty','i-defect-qty','i-loc','i-cause','i-type'].forEach(id=>{
-    document.getElementById(id).value='';
+  ['i-lot','i-customer','i-model','i-prod-qty','i-good-qty','i-defect-qty',
+   'i-def-loc','i-def-qty','i-def-type-custom'].forEach(id=>{
+    const el = document.getElementById(id);
+    if(el) el.value='';
   });
+  const defTypeSel = document.getElementById('i-def-type');
+  if (defTypeSel) defTypeSel.value = '';
+  const defTypeWrap = document.getElementById('i-def-type-custom-wrap');
+  if (defTypeWrap) defTypeWrap.style.display = 'none';
+  const dispEl = document.getElementById('i-defect-display');
+  if (dispEl) { dispEl.textContent = '— ea'; dispEl.style.color = 'var(--text3)'; }
   document.querySelectorAll('.process-btn').forEach(b=>b.classList.remove('selected'));
   selectedProcess='';
+  editingInspRecord = null;
+  inspDefectRows = [];
+  renderInspDefectList();
+  const wb = document.getElementById('i-wo-match-box');
+  if(wb) wb.style.display='none';
+  const banner = document.getElementById('inspect-edit-banner');
+  if(banner) banner.style.display='none';
+  const btn = document.getElementById('inspect-submit-btn');
+  if(btn) btn.textContent = '검사일지 제출';
 }
+
+// ── 검사일지 수정 ──────────────────────────────────────
+function editInspRecord(idx) {
+  const rec = iLots[idx];
+  if (!rec) return;
+  editingInspRecord = rec;
+
+  document.getElementById('inspect-hero').style.display = 'none';
+  document.getElementById('inspect-form').style.display = 'block';
+
+  // 수정 배너 표시
+  const banner = document.getElementById('inspect-edit-banner');
+  if (banner) banner.style.display = 'flex';
+  const btn = document.getElementById('inspect-submit-btn');
+  if (btn) btn.textContent = '✅ 수정 저장';
+
+  // 기본 정보
+  document.getElementById('i-date').value     = rec.date     || '';
+  document.getElementById('i-worker').value   = rec.worker   || '';
+  document.getElementById('i-customer').value = rec.customer || '';
+  document.getElementById('i-model').value    = rec.model    || '';
+  document.getElementById('i-lot').value      = rec.lot      || '';
+  document.getElementById('i-prod-qty').value = rec.prod     || '';
+  document.getElementById('i-good-qty').value = rec.good     || '';
+
+  // 불량 표시
+  calcInspect();
+
+  // 공정 버튼
+  document.querySelectorAll('.process-btn').forEach(b => b.classList.remove('selected'));
+  selectedProcess = rec.process || '';
+  document.querySelectorAll('.process-btn').forEach(b => {
+    if (b.textContent === rec.process) b.classList.add('selected');
+  });
+
+  // 불량 행 복원
+  inspDefectRows = rec.defects ? [...rec.defects] : [];
+  renderInspDefectList();
+
+  window.scrollTo(0,0);
+  showToast('수정할 항목을 변경 후 "수정 저장"을 눌러주세요.','info');
+}
+
 
 // ── CT 피드백 계산 (절대 시간 차이 기준) ────────────────
 function calcCtFeedback(l) {
@@ -3140,6 +4382,9 @@ function makeLotCardHtml(l, showDelete = false) {
 
 // ── 오늘 현황 히어로 렌더링 ─────────────────────────────
 function renderTodayHero() {
+  // 수정 모드 중에는 폼 상태를 건드리지 않음
+  if (editingRecord) return;
+
   const now = new Date();
   const pad = n => String(n).padStart(2,'0');
   const today = `${now.getFullYear()}-${pad(now.getMonth()+1)}-${pad(now.getDate())}`;
@@ -3198,20 +4443,20 @@ function renderUnattList() {
 
   const listEl = document.getElementById('unatt-pending-list');
   if (pending.length === 0) {
-    listEl.innerHTML = '<div class="empty" style="padding:24px 0;"><div class="empty-icon">🌙</div>무인가동 미입력 항목이 없습니다.</div>';
+    listEl.innerHTML = '<div class="empty" style="padding:24px 0;"><div class="empty-icon">🌙</div>무인가동 미입력 항목이 없습니다.<br><span style="font-size:11px;color:var(--text3);">완료된 항목 수정은 "수정하기" 탭을 이용하세요.</span></div>';
     return;
   }
   listEl.innerHTML = pending.map(l =>
-    `<div class="lot-card unattended" id="ucard-${l.lot}_${l.date}"
-      onclick="selectUnatt(this,'${l.lot}_${l.date}')" style="cursor:pointer;">
+    `<div class="lot-card unattended" id="ucard-${l.lot}||${l.date}"
+      onclick="selectUnatt(this,'${l.lot}||${l.date}')" style="cursor:pointer;">
       <div class="lot-card-top">
         <div>
-          <div class="lot-card-model">${l.customer||''} ${l.model ? '· ' + l.model : ''}</div>
+          <div class="lot-card-model">${l.customer||''} ${l.model ? '· '+l.model : ''}</div>
           <div class="lot-card-title">${l.equipName||'-'} · ${l.lot||'-'}</div>
         </div>
         <span class="badge badge-orange">미입력</span>
       </div>
-      <div class="lot-card-info">${l.worker||'-'} · ${l.date||'-'} · 퇴근 ${l.endT||'-'}</div>
+      <div class="lot-card-info">${l.worker||'-'} · ${l.date||'-'} · 무인시작 ${l.unattStartInput||l.setupEndT||l.endT||'-'}</div>
       <div class="chips">
         <span class="chip chip-blue">유인 ${l.attQty||0}ea</span>
         <span class="chip chip-orange">무인 미입력</span>
@@ -3220,16 +4465,254 @@ function renderUnattList() {
   ).join('');
 }
 
-// ── 레코드 삭제 ─────────────────────────────────────────
+// ── 레코드 수정 ─────────────────────────────────────────
+let editingRecord = null;
+
+function editRecord(id, lot, date, time) {
+  const rec = todayLots.find(l => l.lot===lot && l.date===date && l.time===time);
+  if (!rec) { showToast('수정할 데이터를 찾을 수 없습니다.','error'); return; }
+
+  // ★ 최우선으로 editingRecord 세팅
+  editingRecord = rec;
+
+  // 입력 탭으로 이동
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('page-input').classList.add('active');
+  const inputNavBtn = Array.from(document.querySelectorAll('.nav-btn'))
+    .find(b => b.textContent.includes('생산입력'));
+  if (inputNavBtn) inputNavBtn.classList.add('active');
+
+  // 수정모드 배너 표시, 폼 열기
+  document.getElementById('edit-mode-banner').style.display = 'flex';
+  document.getElementById('input-hero').style.display = 'none';
+  document.getElementById('input-form').style.display = 'block';
+
+  // ★ 탭 전환 후 발생하는 모든 이벤트가 끝난 뒤 값 세팅 (setTimeout으로 보장)
+  setTimeout(() => {
+    // 수정 모드가 중간에 취소됐을 경우 대비
+    if (!editingRecord) return;
+
+    // ── 기본 정보 ──
+    document.getElementById('p-date').value    = rec.date    || '';
+    document.getElementById('p-lot').value     = rec.lot     || '';
+    document.getElementById('p-raw-lot').value = rec.rawLot  || '';
+    const pNoteEl = document.getElementById('p-note');
+    if (pNoteEl) pNoteEl.value = rec.note || '';
+
+    // ── 거래처/모델 ──
+    document.getElementById('p-customer').value = rec.customer || '';
+    document.getElementById('p-model').value    = rec.model    || '';
+    renderCustomerSelect('p-customer-select', 'p-customer-new');
+    const cSel = document.getElementById('p-customer-select');
+    cSel.value = rec.customer || '';
+    cSel.disabled = false; cSel.style.opacity = '';
+    document.getElementById('p-customer-new').style.display = 'none';
+    renderModelSelect('p-model-select', 'p-model-new', rec.customer || '');
+    const mSel = document.getElementById('p-model-select');
+    mSel.value = rec.model || '';
+    mSel.disabled = false; mSel.style.opacity = '';
+
+    // ── inputType 먼저 세팅 (onEquipChange가 이를 참조하므로) ──
+    inputType = rec.inputType || 'prod';
+
+    // ── 설비/작업자 ──
+    const eSel = document.getElementById('p-equip');
+    const wSel = document.getElementById('p-worker');
+    const allOpts = eSel.querySelectorAll('option');
+    let equipMatched = false;
+    for (let o of allOpts) {
+      if (o.text === rec.equipName) { eSel.value = o.value; equipMatched = true; break; }
+    }
+    if (!equipMatched) eSel.value = '';
+    onEquipChange();
+    wSel.value = rec.worker || '';
+
+    // ── 시간 ──
+    document.getElementById('p-work-start').value  = rec.workStartT  || rec.startT || '';
+    document.getElementById('p-work-end').value    = rec.workEndT    || rec.endT   || '';
+    document.getElementById('p-setup-start').value = rec.setupStartT || '';
+    document.getElementById('p-setup-end').value   = rec.setupEndT   || '';
+    document.getElementById('p-start').value       = rec.startT      || '';
+    document.getElementById('p-end').value         = rec.endT        || '';
+    document.getElementById('p-ct').value          = rec.ct          || '';
+
+    // ── 수량/불량 ──
+    document.getElementById('p-att-qty2').value = rec.attQty || '';
+    document.getElementById('p-att-d1').value   = rec.attD1  || '';
+    document.getElementById('p-att-d2').value   = rec.attD2  || '';
+    document.getElementById('p-att-d3').value   = rec.attD3  || '';
+    document.getElementById('p-att-d4').value   = rec.attD4  || '';
+    document.getElementById('p-att-d5').value   = rec.attD5  || '';
+    document.getElementById('p-att-d6').value   = rec.attD6  || '';
+    const d6NoteEl = document.getElementById('p-att-d6-note');
+    if (d6NoteEl) d6NoteEl.value = rec.attD6Note || '';
+    const suDefEl = document.getElementById('p-su-defect-total');
+    if (suDefEl) suDefEl.value = rec.setupDefect || '';
+
+    // ── 비가동 사유 ──
+    const noneR = document.querySelector('input[name="idle-reason"][value=""]');
+    if (noneR) noneR.checked = true;
+    document.getElementById('idle-custom-wrap').style.display = 'none';
+    if (rec.idleReason) {
+      const radios = document.querySelectorAll('input[name="idle-reason"]');
+      let found = false;
+      radios.forEach(r => { if (r.value === rec.idleReason) { r.checked = true; found = true; } });
+      if (!found) {
+        document.querySelector('input[name="idle-reason"][value="__custom__"]').checked = true;
+        document.getElementById('idle-custom-text').value = rec.idleReason;
+        document.getElementById('idle-custom-wrap').style.display = 'block';
+      }
+    }
+
+    // ── 섹션 표시 (저장된 inputType 기반으로 직접 제어 — onTimeInput 호출 안 함)
+    document.getElementById('prod-section').style.display =
+      (inputType === 'prod' || inputType === 'setup_prod') ? 'block' : 'none';
+    document.getElementById('setup-section').style.display =
+      (inputType === 'setup' || inputType === 'setup_prod') ? 'block' : 'none';
+    // CT 입력란 표시 여부
+    const ctSec = document.getElementById('ct-section');
+    if (ctSec) ctSec.style.display = rec.startT && rec.endT ? 'block' : 'none';
+
+    // ── 무인가동 ──
+    const equipType = (rec.equipName || '').split(' ')[0];
+    const unattSec  = document.getElementById('unatt-section');
+    if (unattSec && ['CNC','연삭'].includes(equipType) && inputType !== 'idle') {
+      unattSec.style.display = 'block';
+    }
+    setUnatt(rec.unatt === true);
+    const unattStartEl = document.getElementById('p-unatt-start-time');
+    if (unattStartEl) {
+      unattStartEl.value = rec.unattStartInput || rec.setupEndT || rec.endT || '';
+    }
+
+    calcDefect('att');
+
+    // 제출 버튼 텍스트
+    const btn = document.getElementById('submit-btn');
+    if (btn) btn.textContent = '✅ 수정 저장';
+
+    window.scrollTo(0, 0);
+    showToast('수정할 항목을 변경 후 "수정 저장"을 눌러주세요.', 'info');
+  }, 50);
+}
+
+async function saveEdit() {
+  if (!editingRecord) return;
+  const rec = editingRecord;
+
+  // 수정 가능한 필드 전체 읽기
+  const workDate  = document.getElementById('p-date').value;
+  const lot       = document.getElementById('p-lot').value.trim().toUpperCase();
+  const rawLot    = document.getElementById('p-raw-lot').value.trim().toUpperCase();
+  const note      = document.getElementById('p-note')?.value||'';
+  const equipSel  = document.getElementById('p-equip');
+  const equipName = equipSel.options[equipSel.selectedIndex]?.text || rec.equipName;
+  const worker    = document.getElementById('p-worker').value || rec.worker;
+
+  // 거래처/모델 확정
+  const cm = resolveCustomerModel(
+    'p-customer-select','p-customer-new','p-customer',
+    'p-model-select','p-model-new','p-model'
+  );
+  const customer = cm.customer || rec.customer;
+  const model    = cm.model    || rec.model;
+  const setupStartT = document.getElementById('p-setup-start').value;
+  const setupEndT   = document.getElementById('p-setup-end').value;
+  const startT      = document.getElementById('p-start').value;
+  const endT        = document.getElementById('p-end').value;
+  const ct          = parseFloat(document.getElementById('p-ct').value)||0;
+  const attQty      = parseInt(document.getElementById('p-att-qty2').value)||0;
+  const attD1=parseInt(document.getElementById('p-att-d1').value)||0;
+  const attD2=parseInt(document.getElementById('p-att-d2').value)||0;
+  const attD3=parseInt(document.getElementById('p-att-d3').value)||0;
+  const attD4=parseInt(document.getElementById('p-att-d4').value)||0;
+  const attD5=parseInt(document.getElementById('p-att-d5').value)||0;
+  const attD6=parseInt(document.getElementById('p-att-d6')?.value)||0;
+  const attD6Note=(document.getElementById('p-att-d6-note')?.value||'').trim();
+  const defect=attD1+attD2+attD3+attD4+attD5+attD6;
+  const goodQty=Math.max(0,attQty-defect);
+  const setupDefect=parseInt(document.getElementById('p-su-defect-total')?.value)||0;
+  const idleReason=getIdleReason();
+
+  // 시간 재계산
+  let workMins=0,workTimeStr='',theoryCT=0,perfRate=0,setupMins=0,setupTimeStr='';
+  if(startT&&endT){
+    const [sh,sm]=startT.split(':').map(Number),[eh,em]=endT.split(':').map(Number);
+    workMins=(eh*60+em)-(sh*60+sm); if(workMins<0) workMins+=1440;
+    workTimeStr=Math.floor(workMins/60)+'시간 '+(workMins%60)+'분';
+    if(attQty>0) theoryCT=parseFloat((workMins*60/attQty).toFixed(1));
+    if(ct>0&&theoryCT>0) perfRate=parseFloat(Math.min(100,ct/theoryCT*100).toFixed(1));
+  }
+  if(setupStartT&&setupEndT){
+    const [sh,sm]=setupStartT.split(':').map(Number),[eh,em]=setupEndT.split(':').map(Number);
+    setupMins=(eh*60+em)-(sh*60+sm); if(setupMins<0) setupMins+=1440;
+    setupTimeStr=Math.floor(setupMins/60)+'시간 '+(setupMins%60)+'분';
+  }
+  const availRate=parseFloat(((workMins+setupMins)/1440*100).toFixed(1));
+
+  // 유형 자동판단
+  const hasSetup=setupStartT&&setupEndT, hasWork=startT&&endT;
+  const newType=hasSetup&&hasWork?'setup_prod':hasSetup?'setup':hasWork?'prod':'idle';
+
+  // 무인가동 — 현재 토글 상태 반영, 기존 무인 수량 데이터는 보존
+  const newUnatt = unattOn;
+  const unattStartInput = document.getElementById('p-unatt-start-time')?.value || rec.unattStartInput || '';
+
+  // 메모리 업데이트
+  Object.assign(rec, {
+    date:workDate, equipName, worker,
+    lot, rawLot, customer, model,
+    inputType:newType, note, idleReason,
+    attQty, attD1, attD2, attD3, attD4, attD5, attD6, attD6Note,
+    defect, goodQty, setupDefect,
+    ct, theoryCT, workMins, perfRate, qualRate:attQty>0?parseFloat((goodQty/attQty*100).toFixed(1)):0,
+    startT, endT, workTimeStr, setupStartT, setupEndT, setupMins, setupTimeStr, availRate,
+    // 무인 — 토글 상태 반영, 기존 입력완료(unattDone) 데이터는 그대로 보존
+    unatt: newUnatt,
+    unattStartInput,
+    // 무인이 꺼지면 수량 초기화, 켜져 있으면 기존 데이터 유지
+    unattQty:     newUnatt ? rec.unattQty     : 0,
+    unattDefect:  newUnatt ? rec.unattDefect  : 0,
+    unattDone:    newUnatt ? rec.unattDone    : false,
+    unattWorker:  newUnatt ? rec.unattWorker  : '',
+    unattEndDisplay: newUnatt ? rec.unattEndDisplay : '',
+  });
+
+  // DB UPDATE
+  if(rec.id) {
+    await sbUpdate('production_logs', `id=eq.${rec.id}`, prodToDb(rec));
+  }
+  lsSave(LS_PROD, todayLots);
+  SAMPLE_PROD.length=0; todayLots.forEach(r=>SAMPLE_PROD.push(r));
+
+  // 수정모드 완전 종료
+  cancelEdit();
+  renderTodayHero(); renderUnattList(); renderStatus(); filterRecords();
+  showToast('수정이 저장되었습니다.','success');
+  // 조회 탭으로 자동 이동
+  const searchBtn = document.querySelector('.nav-btn[onclick*="\'search\'"]');
+  if(searchBtn) goPage('search', searchBtn);
+}
+
+function cancelEdit() {
+  editingRecord = null;
+  document.getElementById('edit-mode-banner').style.display='none';
+  const btn = document.getElementById('submit-btn');
+  if(btn) btn.textContent = '생산일지 제출';
+  showInputForm();
+}
 function deleteRecord(lot, date, time) {
   if (!confirm(`[${date} · ${lot}] 데이터를 삭제하시겠습니까?\n이 작업은 되돌릴 수 없습니다.`)) return;
+  // id 기준으로 정확히 1건만 삭제
   const target = todayLots.find(l => l.lot === lot && l.date === date && l.time === time);
-  todayLots = todayLots.filter(l => !(l.lot === lot && l.date === date && l.time === time));
+  if (!target) { showToast('삭제 대상을 찾을 수 없습니다.', 'error'); return; }
+  todayLots = todayLots.filter(l => l !== target);
   SAMPLE_PROD.length = 0;
   todayLots.forEach(r => SAMPLE_PROD.push(r));
   lsSave(LS_PROD, todayLots);
-  // DB 삭제
-  if (target && target.id) {
+  // DB 삭제 (id 기준)
+  if (target.id) {
     sbDelete('production_logs', `id=eq.${target.id}`);
   }
   showToast('삭제되었습니다.', 'success');
@@ -3357,82 +4840,6 @@ function restoreData() {
   filterRecords();
   showToast(`복원 완료 — 생산 ${newProd.length}건 · 검사 ${newInsp.length}건 추가`, 'success');
 }
-function extractForCopy(type) {
-  const start = document.getElementById('excel-start').value;
-  const end   = document.getElementById('excel-end').value;
-  const equip = document.getElementById('excel-equip').value;
-
-  const nv = v => (typeof v === 'number' ? v : (parseInt(v) || 0));
-  const sv = v => (v == null ? '' : String(v));
-
-  const data = SAMPLE_PROD.filter(r => {
-    const inRange = (!start || r.date >= start) && (!end || r.date <= end);
-    const inEquip = !equip || (r.equipName||'') === equip;
-    return inRange && inEquip && (r.inputType === 'prod' || r.inputType === 'setup_prod');
-  }).sort((a,b) => (a.date||'').localeCompare(b.date||'') || (a.worker||'').localeCompare(b.worker||''));
-
-  if (!data.length) {
-    showToast('해당 조건의 데이터가 없습니다.', 'error');
-    document.getElementById('copy-result-iso').style.display = 'none';
-    return;
-  }
-
-  if (type === 'iso') {
-    const header = [
-      '날짜','작업자','거래처','공정','모델명','LOT번호',
-      '생산수량합계','양품합계(EA)','SET UP(EA)','불량합계(EA)',
-      '근무양품(EA)','근무불량(EA)','무인양품(EA)','무인불량(EA)','불량내용'
-    ].join('\t');
-
-    const rows = data.map(r => {
-      const attGood   = Math.max(0, nv(r.attQty)   - nv(r.defect));
-      const unattGood = Math.max(0, nv(r.unattQty) - nv(r.unattDefect));
-      const totalQty  = nv(r.attQty) + nv(r.unattQty);
-      const totalGood = attGood + unattGood;
-      const totalDef  = nv(r.defect) + nv(r.unattDefect);
-      return [
-        sv(r.date), sv(r.worker), sv(r.customer), sv(r.process),
-        sv(r.model), sv(r.lot),
-        totalQty, totalGood, nv(r.setupQty), totalDef,
-        attGood, nv(r.defect), unattGood, nv(r.unattDefect),
-        sv(r.note)
-      ].join('\t');
-    });
-
-    const tp = data.reduce((s,r)=>s+nv(r.attQty)+nv(r.unattQty), 0);
-    const tg = data.reduce((s,r)=>s+Math.max(0,nv(r.attQty)-nv(r.defect))+Math.max(0,nv(r.unattQty)-nv(r.unattDefect)), 0);
-    const td = data.reduce((s,r)=>s+nv(r.defect)+nv(r.unattDefect), 0);
-    const ts = data.reduce((s,r)=>s+nv(r.setupQty), 0);
-    const sumRow = ['합계','','','','','', tp, tg, ts, td, '','','','',''].join('\t');
-
-    const text = [header, sumRow, ...rows].join('\n');
-
-    document.getElementById('copy-iso-area').value = text;
-    document.getElementById('copy-iso-count').textContent = `📊 ${data.length}건 추출 완료`;
-    document.getElementById('copy-result-iso').style.display = 'block';
-    document.getElementById('copy-iso-btn').textContent = '📎 전체 복사';
-    document.getElementById('copy-iso-btn').className = 'btn-copy';
-    showToast(`${data.length}건 추출 완료. 복사 후 엑셀에 붙여넣으세요.`, 'success');
-  }
-}
-
-function copyToClipboard(areaId, btnId) {
-  const area = document.getElementById(areaId);
-  const btn  = document.getElementById(btnId);
-  area.select();
-  const done = () => {
-    btn.textContent = '✅ 복사됨!';
-    btn.classList.add('copied');
-    showToast('클립보드에 복사되었습니다.', 'success');
-    setTimeout(() => { btn.textContent = '📎 전체 복사'; btn.classList.remove('copied'); }, 2000);
-  };
-  if (navigator.clipboard) {
-    navigator.clipboard.writeText(area.value).then(done).catch(() => { document.execCommand('copy'); done(); });
-  } else {
-    document.execCommand('copy'); done();
-  }
-}
-
 function setStatToday() {
   const now = new Date();
   const pad = n => String(n).padStart(2,'0');
@@ -3475,85 +4882,171 @@ function renderStatus() {
   // ── OEE 계산 헬퍼 ──
   function oeeColor(v) { return v >= 85 ? 'high' : v >= 60 ? 'mid' : 'low'; }
   function oeeBadgeClass(v) { return v >= 85 ? 'oee-badge-good' : v >= 60 ? 'oee-badge-mid' : 'oee-badge-low'; }
+  function oeeColorVar(v) { return v >= 85 ? 'var(--success)' : v >= 60 ? 'var(--warning)' : 'var(--danger)'; }
 
-  // CT 입력된 데이터만 대상 (이론CT 있는 것)
+  // 전체 데이터 (셋팅만 포함 — 가용률 계산용)
+  const allData = todayLots.filter(l => {
+    return (!start || l.date >= start) && (!end || l.date <= end);
+  }).filter(l => ['prod','setup_prod','setup'].includes(l.inputType));
+
+  // ── 가용률: 조업시간 기준 ──
+  // workStartT~workEndT (조업시간) 중 셋팅+생산 시간
+  let totalWorkMins = 0, totalActiveMins = 0;
+  allData.forEach(l => {
+    // 조업시간
+    const toM = t => { if(!t) return null; const [h,m]=t.split(':').map(Number); let v=h*60+m; if(v<9*60)v+=1440; return v; };
+    const wsM = toM(l.workStartT), weM = toM(l.workEndT || l.endT || l.setupEndT);
+    if (wsM && weM) {
+      let wt = weM - wsM; if(wt<0) wt+=1440;
+      totalWorkMins += wt;
+    }
+    // 활동시간 (셋팅+생산)
+    const ssM=toM(l.setupStartT), seM=toM(l.setupEndT);
+    const psM=toM(l.startT), peM=toM(l.endT);
+    if(ssM&&seM){ let d=seM-ssM; if(d<0)d+=1440; totalActiveMins+=d; }
+    if(psM&&peM){ let d=peM-psM; if(d<0)d+=1440; totalActiveMins+=d; }
+  });
+  const avgAvail = totalWorkMins > 0 ? Math.min(100, totalActiveMins / totalWorkMins * 100) : null;
+
+  // CT 입력된 데이터만 대상
   const ctData = data.filter(l => l.theoryCT > 0 && l.ct > 0 && l.attQty > 0);
 
-  // 전체 성능효율: 수기CT 가중평균 / 이론CT 가중평균
-  const totalSumHandCT  = ctData.reduce((s,l) => s + l.ct * l.attQty, 0);
-  const totalSumThCT    = ctData.reduce((s,l) => s + l.theoryCT * l.attQty, 0);
-  const totalSumQty     = ctData.reduce((s,l) => s + l.attQty, 0);
+  // 전체 성능효율
+  const totalSumHandCT = ctData.reduce((s,l) => s + l.ct * l.attQty, 0);
+  const totalSumThCT   = ctData.reduce((s,l) => s + l.theoryCT * l.attQty, 0);
   const avgPerf  = totalSumThCT > 0 ? Math.min(100, totalSumHandCT / totalSumThCT * 100) : null;
-  const totalQtyAll = data.reduce((s,l) => s + (l.attQty||0) + (l.unattQty||0), 0);
+
+  const totalQtyAll  = data.reduce((s,l) => s + (l.attQty||0) + (l.unattQty||0), 0);
   const totalGoodAll = Math.max(0, totalQtyAll - data.reduce((s,l) => s + (l.defect||0) + (l.unattDefect||0), 0));
   const avgQual  = totalQtyAll > 0 ? totalGoodAll / totalQtyAll * 100 : null;
-  const avgOEE   = (avgPerf !== null && avgQual !== null) ? avgPerf * avgQual / 100 : null;
+  const avgOEE   = (avgAvail !== null && avgPerf !== null && avgQual !== null)
+    ? avgAvail * avgPerf * avgQual / 10000
+    : (avgPerf !== null && avgQual !== null) ? avgPerf * avgQual / 100 : null;
 
   const fmt = v => v !== null ? v.toFixed(1) + '%' : '—';
+  const avEl = document.getElementById('st-avail');
+  if(avEl) { avEl.textContent = fmt(avgAvail); if(avgAvail!==null) avEl.style.color = oeeColorVar(avgAvail); }
   document.getElementById('st-perf').textContent = fmt(avgPerf);
   document.getElementById('st-qual').textContent = fmt(avgQual);
   document.getElementById('st-oee').textContent  = fmt(avgOEE);
-  if (avgPerf !== null) document.getElementById('st-perf').style.color = `var(--${oeeColor(avgPerf) === 'high' ? 'success' : oeeColor(avgPerf) === 'mid' ? 'warning' : 'danger'})`;
-  if (avgQual !== null) document.getElementById('st-qual').style.color = `var(--${oeeColor(avgQual) === 'high' ? 'success' : oeeColor(avgQual) === 'mid' ? 'warning' : 'danger'})`;
-  if (avgOEE  !== null) document.getElementById('st-oee').style.color  = `var(--${oeeColor(avgOEE)  === 'high' ? 'success' : oeeColor(avgOEE)  === 'mid' ? 'warning' : 'danger'})`;
+  if (avgPerf !== null) document.getElementById('st-perf').style.color = oeeColorVar(avgPerf);
+  if (avgQual !== null) document.getElementById('st-qual').style.color = oeeColorVar(avgQual);
+  if (avgOEE  !== null) document.getElementById('st-oee').style.color  = oeeColorVar(avgOEE);
+
+  // 계산식 상세 표시
+  const fmtH = m => m>0 ? `${Math.floor(m/60)}h${m%60>0?m%60+'m':''}` : '0h';
+  const detailEl = document.getElementById('st-oee-formula-detail');
+  if (detailEl && (totalWorkMins>0 || totalSumThCT>0)) {
+    const ctQtyAll = ctData.reduce((s,l)=>s+l.attQty,0);
+    const avgHCT = ctQtyAll>0 ? (totalSumHandCT/ctQtyAll).toFixed(0) : '—';
+    const avgTCT = ctQtyAll>0 ? (totalSumThCT/ctQtyAll).toFixed(0) : '—';
+    detailEl.style.display='block';
+    detailEl.innerHTML = [
+      totalWorkMins>0 ? `📐 가용률: (셋팅 ${fmtH(totalActiveMins-Math.max(0,totalActiveMins-totalWorkMins))} + 생산) ÷ 조업 ${fmtH(totalWorkMins)} = <b>${fmt(avgAvail)}</b>` : '',
+      ctQtyAll>0 ? `⚙️ 성능효율: 수기CT ${avgHCT}초 ÷ 이론CT ${avgTCT}초 = <b>${fmt(avgPerf)}</b>` : '',
+      totalQtyAll>0 ? `✅ 양품률: 양품 ${totalGoodAll}ea ÷ 총생산 ${totalQtyAll}ea = <b>${fmt(avgQual)}</b>` : '',
+      avgOEE!==null ? `🏭 종합OEE = ${fmt(avgAvail)} × ${fmt(avgPerf)} × ${fmt(avgQual)} = <b style="font-size:13px;color:${oeeColorVar(avgOEE)}">${fmt(avgOEE)}</b>` : '',
+    ].filter(Boolean).join('<br>');
+  } else if(detailEl) {
+    detailEl.style.display='none';
+  }
 
   // ── 설비별 OEE ──
   const oeeMap = {};
-  data.forEach(l => {
+  allData.forEach(l => {
     const k = l.equipName || '미지정';
-    if (!oeeMap[k]) oeeMap[k] = { qty:0, good:0, defect:0, sumHandCT:0, sumThCT:0, ctLots:0, lots:[] };
-    oeeMap[k].qty    += (l.attQty||0) + (l.unattQty||0);
-    oeeMap[k].defect += (l.defect||0) + (l.unattDefect||0);
-    oeeMap[k].good    = Math.max(0, oeeMap[k].qty - oeeMap[k].defect);
-    if (l.theoryCT > 0 && l.ct > 0 && l.attQty > 0) {
-      oeeMap[k].sumHandCT += l.ct * l.attQty;
-      oeeMap[k].sumThCT   += l.theoryCT * l.attQty;
-      oeeMap[k].ctLots    += 1;
+    if (!oeeMap[k]) oeeMap[k] = {
+      qty:0, good:0, defect:0,
+      sumHandCT:0, sumThCT:0, ctLots:0,
+      workMins:0, setupMins:0, prodMins:0, unattMins:0,
+      lots:[]
+    };
+    const e = oeeMap[k];
+    // 생산 데이터
+    if (['prod','setup_prod'].includes(l.inputType)) {
+      e.qty    += (l.attQty||0) + (l.unattQty||0);
+      e.defect += (l.defect||0) + (l.unattDefect||0);
+      if (l.theoryCT > 0 && l.ct > 0 && l.attQty > 0) {
+        e.sumHandCT += l.ct * l.attQty;
+        e.sumThCT   += l.theoryCT * l.attQty;
+        e.ctLots    += 1;
+      }
     }
-    oeeMap[k].lots.push(l);
+    e.good = Math.max(0, e.qty - e.defect);
+
+    // 시간 계산
+    const toM = t => { if(!t)return null; const[h,m]=t.split(':').map(Number);let v=h*60+m;if(v<9*60)v+=1440;return v; };
+    const wsM=toM(l.workStartT), weM=toM(l.workEndT||l.endT||l.setupEndT);
+    if(wsM&&weM){ let d=weM-wsM;if(d<0)d+=1440; e.workMins+=d; }
+    const ssM=toM(l.setupStartT), seM=toM(l.setupEndT);
+    if(ssM&&seM){ let d=seM-ssM;if(d<0)d+=1440; e.setupMins+=d; }
+    const psM=toM(l.startT), peM=toM(l.endT);
+    if(psM&&peM){ let d=peM-psM;if(d<0)d+=1440; e.prodMins+=d; }
+    // 무인 시간 (이론)
+    if(l.unatt && l.ct && l.unattQty) {
+      e.unattMins += Math.round(l.ct * l.unattQty / 60);
+    }
+    e.lots.push(l);
   });
 
+  const fmtM = m => m > 0 ? `${Math.floor(m/60)}h${m%60>0?m%60+'m':''}` : '—';
+
   const oeeHtml = Object.entries(oeeMap).sort((a,b) => b[1].qty - a[1].qty).map(([name, e]) => {
-    const perf = e.sumThCT > 0 ? Math.min(100, e.sumHandCT / e.sumThCT * 100) : null;
-    const qual = e.qty > 0 ? e.good / e.qty * 100 : null;
-    const oee  = (perf !== null && qual !== null) ? perf * qual / 100 : null;
+    const avail = e.workMins > 0 ? Math.min(100,(e.setupMins+e.prodMins)/e.workMins*100) : null;
+    const perf  = e.sumThCT > 0 ? Math.min(100, e.sumHandCT / e.sumThCT * 100) : null;
+    const qual  = e.qty > 0 ? e.good / e.qty * 100 : null;
+    const oee   = (avail!==null && perf!==null && qual!==null)
+      ? avail*perf*qual/10000
+      : (perf!==null && qual!==null) ? perf*qual/100 : null;
+
     const oeeVal = oee !== null ? oee.toFixed(1) : '—';
     const barPct = oee !== null ? Math.round(oee) : 0;
-    const barCls = oeeColor(oee || 0);
     const badgeCls = oeeBadgeClass(oee || 0);
-    // CT 비교 표시
-    const avgHandCT = e.ctLots > 0 ? (e.sumHandCT / e.lots.filter(l=>l.attQty>0 && l.ct>0).reduce((s,l)=>s+l.attQty,0)).toFixed(1) : null;
-    const avgThCT   = e.ctLots > 0 ? (e.sumThCT   / e.lots.filter(l=>l.attQty>0 && l.theoryCT>0).reduce((s,l)=>s+l.attQty,0)).toFixed(1) : null;
-    const ctNote = avgHandCT && avgThCT
-      ? `수기CT ${avgHandCT}초 / 이론CT ${avgThCT}초`
-      : 'CT 데이터 없음';
+    const idleMins = Math.max(0, e.workMins - e.setupMins - e.prodMins);
+
+    // CT 요약
+    const ctQty = e.lots.filter(l=>l.attQty>0&&l.ct>0).reduce((s,l)=>s+l.attQty,0);
+    const avgHandCT = ctQty > 0 ? (e.sumHandCT/ctQty).toFixed(0) : null;
+    const avgThCT   = ctQty > 0 ? (e.sumThCT/ctQty).toFixed(0) : null;
 
     return `<div class="oee-equip-row">
       <div class="oee-equip-header">
         <span class="oee-equip-name">🏭 ${name}</span>
-        <span class="oee-equip-badge ${oee !== null ? badgeCls : 'oee-badge-mid'}">OEE ${oeeVal}${oee !== null ? '%' : ''}</span>
+        <span class="oee-equip-badge ${oee !== null ? badgeCls : 'oee-badge-mid'}">OEE ${oeeVal}${oee!==null?'%':''}</span>
       </div>
-      <div class="oee-metrics">
+      <div class="oee-metrics" style="grid-template-columns:repeat(4,1fr);">
+        <div class="oee-metric">
+          <div class="oee-metric-label">가용률</div>
+          <div class="oee-metric-val" style="color:${avail!==null?oeeColorVar(avail):'var(--text3)'};">${avail!==null?avail.toFixed(1)+'%':'—'}</div>
+        </div>
         <div class="oee-metric">
           <div class="oee-metric-label">성능효율</div>
-          <div class="oee-metric-val">${perf !== null ? perf.toFixed(1)+'%' : '—'}</div>
+          <div class="oee-metric-val" style="color:${perf!==null?oeeColorVar(perf):'var(--text3)'};">${perf!==null?perf.toFixed(1)+'%':'—'}</div>
         </div>
         <div class="oee-metric">
           <div class="oee-metric-label">양품률</div>
-          <div class="oee-metric-val">${qual !== null ? qual.toFixed(1)+'%' : '—'}</div>
+          <div class="oee-metric-val" style="color:${qual!==null?oeeColorVar(qual):'var(--text3)'};">${qual!==null?qual.toFixed(1)+'%':'—'}</div>
         </div>
         <div class="oee-metric">
           <div class="oee-metric-label">생산수</div>
           <div class="oee-metric-val">${e.qty.toLocaleString()}ea</div>
         </div>
       </div>
-      <div class="oee-bar-wrap"><div class="oee-bar ${barCls}" style="width:${barPct}%"></div></div>
-      <div class="oee-ct-note">${ctNote}</div>
+      <div class="oee-bar-wrap"><div class="oee-bar ${oeeColor(oee||0)}" style="width:${barPct}%"></div></div>
+      <!-- 시간 구성 -->
+      <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:4px;margin-top:8px;padding:8px;background:var(--bg);border-radius:var(--radius-sm);font-size:11px;text-align:center;">
+        <div><div style="color:var(--text3);font-size:10px;">조업</div><div style="font-weight:600;">${fmtM(e.workMins)}</div></div>
+        <div><div style="color:var(--warning);font-size:10px;">셋팅</div><div style="font-weight:600;color:var(--warning);">${fmtM(e.setupMins)}</div></div>
+        <div><div style="color:var(--accent);font-size:10px;">생산</div><div style="font-weight:600;color:var(--accent);">${fmtM(e.prodMins)}</div></div>
+        <div><div style="color:var(--danger);font-size:10px;">비가동</div><div style="font-weight:600;color:${idleMins>0?'var(--danger)':'var(--text3)'};">${fmtM(idleMins)}</div></div>
+      </div>
+      ${e.unattMins > 0 ? `<div style="font-size:11px;color:var(--text2);margin-top:4px;padding:4px 8px;background:var(--bg);border-radius:var(--radius-sm);">🌙 무인가동 이론시간: ${fmtM(e.unattMins)}</div>` : ''}
+      ${avgHandCT ? `<div class="oee-ct-note">수기CT ${avgHandCT}초 / 이론CT ${avgThCT}초</div>` : '<div class="oee-ct-note" style="color:var(--text3);">CT 데이터 없음 (생산 없음)</div>'}
     </div>`;
   }).join('');
 
   document.getElementById('st-oee-equip-list').innerHTML = oeeHtml ||
-    '<div class="empty" style="padding:12px 0;"><div class="empty-icon">📊</div>CT 데이터 필요</div>';
+    '<div class="empty" style="padding:12px 0;"><div class="empty-icon">📊</div>데이터 없음</div>';
 
   // ── 설비별 현황 ──
   const equipMap = {};
@@ -3752,27 +5245,31 @@ function filterRecords() {
     const defRateCls= parseFloat(defRate) === 0 ? 'defect-rate-ok' : parseFloat(defRate) <= 3 ? 'defect-rate-warn' : 'defect-rate-bad';
 
     // 수량 상세 그리드
+    // 셋팅만이어도 무인가동 수량이 있으면 표시
+    const hasUnatt = nv(l.unattQty) > 0 || (l.unatt && !l.unattDone);
     let qtyGrid = '';
-    if (!isSetup) {
-      qtyGrid = `<div class="qty-detail-grid">
+    if (!isSetup || hasUnatt) {
+      // 셋팅만인 경우 유인 생산 박스는 숨기고 무인만 표시
+      const attBox = !isSetup ? `
         <div class="qty-detail-box">
           <div class="qty-detail-label">주간(유인) 생산</div>
           <div class="qty-detail-row"><span>합계</span><span class="val total">${attQty}ea</span></div>
           <div class="qty-detail-row"><span>양품</span><span class="val good">${attGood}ea</span></div>
           <div class="qty-detail-row"><span>불량</span><span class="val defect">${attDef}ea</span></div>
-        </div>
+        </div>` : '';
+      const unattBox = `
         <div class="qty-detail-box">
           <div class="qty-detail-label">무인 생산${!l.unattDone && l.unatt ? ' <span style="color:var(--warning)">⏳미입력</span>' : ''}</div>
           <div class="qty-detail-row"><span>합계</span><span class="val total">${unattQty}ea</span></div>
           <div class="qty-detail-row"><span>양품</span><span class="val good">${unattGood}ea</span></div>
           <div class="qty-detail-row"><span>불량</span><span class="val defect">${unattDef}ea</span></div>
-        </div>
-      </div>
+        </div>`;
+      qtyGrid = `<div class="qty-detail-grid" style="${isSetup ? 'grid-template-columns:1fr;' : ''}">${attBox}${unattBox}</div>
       <div class="chips" style="margin-bottom:6px;">
-        <span class="chip chip-blue">총생산 ${totalQty}ea</span>
+        ${!isSetup ? `<span class="chip chip-blue">총생산 ${totalQty}ea</span>` : ''}
         <span class="chip chip-green">총양품 ${totalGood}ea</span>
         ${totalDef > 0 ? `<span class="chip chip-red">총불량 ${totalDef}ea</span>` : ''}
-        <span class="defect-rate-chip ${defRateCls}">불량률 ${defRate}%</span>
+        ${!isSetup && totalQty > 0 ? `<span class="defect-rate-chip ${defRateCls}">불량률 ${defRate}%</span>` : ''}
       </div>`;
     }
 
@@ -3790,29 +5287,53 @@ function filterRecords() {
     }
 
     // 시간 정보 (표기 통일)
+    // ── 시간 표시 ──────────────────────────────────────
+    const fmtT = (s, e, dur) => {
+      if (!s && !e) return '';
+      const timeStr = `${s||'?'} ~ ${e||'?'}`;
+      return dur ? `${timeStr} (${dur})` : timeStr;
+    };
+
+    // 무인 가동 시간 표시
+    const unattStartT  = l.unattStartInput || l.endT || l.setupEndT || '';
+    const unattEndDisp = l.unattDone
+      ? (l.unattEndDisplay || l.unattEndT || '완료')
+      : '⏳ 미입력';
+    const unattLine = (l.unatt && unattStartT)
+      ? `<div>🌙 무인 가동: ${unattStartT} ~ ${unattEndDisp}</div>`
+      : l.unatt
+      ? `<div>🌙 무인 가동: ⏳ 미입력</div>`
+      : '';
+
+    // 비가동 사유
+    const idleLine = l.idleReason
+      ? `<div>⛔ 비가동: ${l.idleReason}</div>`
+      : '';
+
     let timeInfo = '';
-    if (!isSetup) {
-      const unattStart   = l.endT || '';
-      const unattEndDisp = l.unattDone
-        ? (l.unattEndDisplay || l.unattEndT || '완료')
-        : '미입력';
-      const unattTime = unattStart && l.unatt
-        ? `🌙 무인 가동: ${unattStart} ~ ${unattEndDisp}`
+    if (l.inputType === 'unatt_only') {
+      const us = l.unattStartT || '-';
+      const ue = l.unattEndDisplay || l.unattEndT || '완료';
+      timeInfo = `<div>🌙 무인 가동: ${us} ~ ${ue}</div>`;
+    } else if (l.inputType === 'idle') {
+      timeInfo = idleLine || '<div>⛔ 비가동</div>';
+    } else {
+      // 셋팅 시간
+      const setupLine = (l.setupStartT && l.setupEndT)
+        ? `<div>🔧 셋팅: ${fmtT(l.setupStartT, l.setupEndT, l.setupTimeStr)}</div>`
+        : '';
+      // 작업 시간
+      const workLine = (l.startT && l.endT)
+        ? `<div>⚙️ 작업: ${fmtT(l.startT, l.endT, l.workTimeStr)}</div>`
         : '';
 
-      if (l.inputType === 'unatt_only') {
-        const us = l.unattStartT || '-';
-        const ue = l.unattEndDisplay || l.unattEndT || '완료';
-        timeInfo = `🌙 무인 가동: ${us} ~ ${ue}`;
-      } else if (isSetupProd && l.setupStartT) {
-        timeInfo = `🔧 셋팅: ${l.setupStartT} ~ ${l.setupEndT} (${l.setupTimeStr||'-'})`
-          + ` / ⏱️ 주간 생산: ${l.startT||'-'} ~ ${l.endT||'-'} (${l.workTimeStr||'-'})`
-          + (l.unatt ? ` / ${unattTime}` : '');
-      } else if (l.startT) {
-        timeInfo = `⏱️ 주간 생산: ${l.startT} ~ ${l.endT||'-'} (${l.workTimeStr||'-'})`
-          + (l.unatt ? ` / ${unattTime}` : '');
-      }
+      timeInfo = setupLine + workLine + unattLine + idleLine;
     }
+
+    // record-info 시간 표시 박스
+    const timeBox = timeInfo
+      ? `<div style="background:var(--bg3);border-radius:var(--radius-sm);padding:7px 10px;margin:6px 0;font-size:12px;color:var(--text2);line-height:1.9;">${timeInfo}</div>`
+      : '';
 
     // CT 피드백
     const fb = calcCtFeedback(l);
@@ -3837,15 +5358,17 @@ function filterRecords() {
           <div class="record-date">${l.date||'-'}</div>
           <div style="margin-top:4px;display:flex;gap:4px;justify-content:flex-end;">
             ${typeBadge}
+            <button class="btn-edit" onclick="editRecord('${l.id||''}','${l.lot}','${l.date}','${l.time}')">수정</button>
             <button class="btn-delete" onclick="deleteRecord('${l.lot}','${l.date}','${l.time}')">삭제</button>
           </div>
         </div>
       </div>
       <div class="record-info">
-        👷 ${l.worker||'-'} · ⚙️ ${l.process||'-'}${timeInfo ? '<br>⏱️ '+timeInfo : ''}
+        👷 ${l.worker||'-'} · ⚙️ ${l.process||'-'}
         ${l.attD6Note && l.attD6 > 0 ? `<br>📝 기타 불량: ${l.attD6Note} ${l.attD6}ea` : ''}
         ${l.unattD6Note && l.unattD6 > 0 ? `<br>📝 무인 기타 불량: ${l.unattD6Note} ${l.unattD6}ea` : ''}
       </div>
+      ${timeBox}
       ${setupInfo}
       ${qtyGrid}
       ${fbHtml}
