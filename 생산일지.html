@@ -4739,19 +4739,19 @@ function clearAllData() {
   if (!confirm('생산일지, 검사일지, 작업지시 데이터를 모두 삭제합니다.\n\n정말 삭제하시겠습니까?')) return;
   if (!confirm('마지막 확인입니다. 삭제 후 복구가 불가능합니다.\n\n계속하시겠습니까?')) return;
 
-  // 생산/검사/작업지시 관련 키 전부 삭제
-  [LS_PROD, LS_INSPECT, LS_WORK_ORDERS,
-   'mes_prod', 'mes_inspect', 'mes_inspect_logs', 'mes_prod_logs'].forEach(k => {
-    localStorage.removeItem(k);
-  });
+  // localStorage 전체 키 중 mes_ 관련 모두 삭제
+  const keysToDelete = Object.keys(localStorage).filter(k =>
+    k.startsWith('mes_') || k.startsWith('ot') || k.startsWith('tm')
+  );
+  keysToDelete.forEach(k => localStorage.removeItem(k));
 
   // 메모리 초기화
   todayLots.length = 0;
   SAMPLE_PROD.length = 0;
   iLots.length = 0;
 
-  showToast('전체 데이터가 초기화되었습니다.', 'success');
-  setTimeout(() => location.reload(), 1000);
+  alert('초기화 완료. 확인을 누르면 새로고침됩니다.');
+  location.reload();
 }
 
 function backupData() {
