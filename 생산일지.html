@@ -2065,27 +2065,20 @@ function lsLoad(key) {
 // DB에서 전체 데이터 불러오기
 async function loadAllFromDb() {
   showToast('데이터 불러오는 중...', 'info');
-  const [prodRows, inspRows] = await Promise.all([
+  const [prodRows, inspRows, woRows] = await Promise.all([
     sbSelect('production_logs', 'select=*'),
-    sbSelect('inspection_logs', 'select=*')
+    sbSelect('inspection_logs', 'select=*'),
+    sbSelect('work_orders', 'select=*')
   ]);
 
-  // DB 연결 실패 시 (빈 배열 반환) localStorage 유지
-  if (prodRows.length === 0 && inspRows.length === 0) {
-    const localProd = lsLoad(LS_PROD);
-    const localInsp = lsLoad(LS_INSPECT);
-    if (localProd.length > 0 || localInsp.length > 0) {
-      // localStorage 데이터로 유지
-      todayLots.length = 0;
-      localProd.forEach(r => todayLots.push(r));
-      SAMPLE_PROD.length = 0;
-      todayLots.forEach(r => SAMPLE_PROD.push(r));
-      iLots.length = 0;
-      localInsp.forEach(r => iLots.push(r));
-      renderTodayHero(); renderUnattList(); renderStatus(); filterRecords();
-      showToast(`로컬 데이터 로드 (생산 ${todayLots.length}건 · 검사 ${iLots.length}건)`, 'info');
-      return;
-    }
+  const dbOk = prodRows.length > 0 || inspRows.length > 0 || woRows.length > 0;
+
+  if (!dbOk) {
+    // DB 연결 실패 or 빈 DB — localStorage만 사용 (단, 절대 덮어쓰지 않음)
+    showToast('DB 연결 실패 — 로컬 데이터로 표시합니다.', 'info');
+    renderTodayHero(); renderUnattList(); renderStatus(); filterRecords();
+    renderWorkorderList(); renderLotStatus();
+    return;
   }
 
   // DB 데이터로 갱신
@@ -2099,11 +2092,26 @@ async function loadAllFromDb() {
   inspRows.map(dbToInsp).forEach(r => iLots.push(r));
   lsSave(LS_INSPECT, iLots);
 
+  // 작업지시 DB → localStorage 갱신
+  if (woRows.length > 0) {
+    const woData = woRows.map(r => ({
+      lot:      r.lot,
+      qty:      r.order_qty || 0,
+      customer: r.customer || '',
+      model:    r.model    || '',
+      process:  r.process  || '',
+      date:     r.date     || '',
+    }));
+    saveWorkOrders(woData);
+  }
+
   renderTodayHero();
   renderUnattList();
   renderStatus();
   filterRecords();
-  showToast(`데이터 로드 완료 (생산 ${todayLots.length}건 · 검사 ${iLots.length}건)`, 'success');
+  renderWorkorderList();
+  renderLotStatus();
+  showToast(`DB 로드 완료 (생산 ${todayLots.length}건 · 검사 ${iLots.length}건 · 작업지시 ${woRows.length}건)`, 'success');
 }
 
 // ── 생산 데이터 (Supabase 연동 후 API 데이터로 교체) ─────────────
@@ -2323,7 +2331,8 @@ async function init() {
   renderCustomerSelect('p-customer-select','p-customer-new');
   renderCustomerSelect('ua-customer-select','ua-customer-new');
 
-  // ※ DB 자동 로드 제거 — 동기화 버튼에서만 실행
+  // DB에서 최신 데이터 로드
+  await loadAllFromDb();
   updateLastBackupInfo();
 
   updateClock();
@@ -3402,6 +3411,10 @@ function saveWorkOrder() {
     }
     orders.push({ lot, qty, customer, model, process, date: woDate });
     saveWorkOrders(orders);
+    // Supabase에도 저장
+    sbInsert('work_orders', {
+      lot, customer, model, process, date: woDate, order_qty: qty
+    });
     ['wo-lot','wo-qty','wo-customer','wo-model','wo-date'].forEach(id => {
       const el = document.getElementById(id); if(el) el.value = '';
     });
