@@ -1,0 +1,22 @@
+{
+  "name": "생산관리 시스템",
+  "short_name": "생산관리",
+  "description": "치과용 임플란트 수술기구 생산관리 시스템",
+  "start_url": "/mes-production/생산일지.html",
+  "display": "standalone",
+  "background_color": "#f8fafc",
+  "theme_color": "#2563eb",
+  "orientation": "portrait",
+  "icons": [
+    {
+      "src": "icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}
