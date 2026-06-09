@@ -2065,21 +2065,26 @@ function lsLoad(key) {
 // DB에서 전체 데이터 불러오기
 async function loadAllFromDb() {
   showToast('데이터 불러오는 중...', 'info');
+
+  // 연결 테스트 — HEAD 요청으로 응답 여부 확인
+  let dbConnected = false;
+  try {
+    const testRes = await fetch(`${SB_URL}/rest/v1/production_logs?select=id&limit=1`, { headers: SB_HDR });
+    dbConnected = testRes.ok;
+  } catch(e) { dbConnected = false; }
+
+  if (!dbConnected) {
+    showToast('DB 연결 실패 — 로컬 데이터로 표시합니다.', 'error');
+    renderTodayHero(); renderUnattList(); renderStatus(); filterRecords();
+    renderWorkorderList(); renderLotStatus();
+    return;
+  }
+
   const [prodRows, inspRows, woRows] = await Promise.all([
     sbSelect('production_logs', 'select=*'),
     sbSelect('inspection_logs', 'select=*'),
     sbSelect('work_orders', 'select=*')
   ]);
-
-  const dbOk = prodRows.length > 0 || inspRows.length > 0 || woRows.length > 0;
-
-  if (!dbOk) {
-    // DB 연결 실패 or 빈 DB — localStorage만 사용 (단, 절대 덮어쓰지 않음)
-    showToast('DB 연결 실패 — 로컬 데이터로 표시합니다.', 'info');
-    renderTodayHero(); renderUnattList(); renderStatus(); filterRecords();
-    renderWorkorderList(); renderLotStatus();
-    return;
-  }
 
   // DB 데이터로 갱신
   todayLots.length = 0;
@@ -2092,7 +2097,6 @@ async function loadAllFromDb() {
   inspRows.map(dbToInsp).forEach(r => iLots.push(r));
   lsSave(LS_INSPECT, iLots);
 
-  // 작업지시 DB → localStorage 갱신
   if (woRows.length > 0) {
     const woData = woRows.map(r => ({
       lot:      r.lot,
@@ -2111,7 +2115,7 @@ async function loadAllFromDb() {
   filterRecords();
   renderWorkorderList();
   renderLotStatus();
-  showToast(`DB 로드 완료 (생산 ${todayLots.length}건 · 검사 ${iLots.length}건 · 작업지시 ${woRows.length}건)`, 'success');
+  showToast(`DB 연결 완료 (생산 ${todayLots.length}건 · 검사 ${iLots.length}건 · 작업지시 ${woRows.length}건)`, 'success');
 }
 
 // ── 생산 데이터 (Supabase 연동 후 API 데이터로 교체) ─────────────
